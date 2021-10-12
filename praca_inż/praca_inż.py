@@ -51,6 +51,21 @@ class my_MLP(object):
             for ind in indexes:
                 activation_hidden, activation_out = self._forward(X[j])
 
+        #...
+
+    def predict(self, X): #zwraca: [0] - prawdopodobieństwa dopasowania; [1] - dopasowana klasa
+        samples_count = X.shape[0]
+        predictions = []
+        classes = []
+
+        for i in range(samples_count):
+            _, probability = self._forward(X[i])
+            predictions.append(probability)          
+            index = np.argmax(probability)
+            sample = np.zeros(self.class_count)
+            sample[index] = 1
+            classes.append(sample)       
+        return np.array(predictions), np.array(classes)
 
 
 
