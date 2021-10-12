@@ -21,9 +21,14 @@ class my_MLP(object):
 
     def _forward(self, X):
         activation_hidden = []
-        activation_hidden_i = X
-        for i in range(self.hidden_count-1):
-            a=0
+        activation_hidden_i = X.copy()
+        for i in range(self.hidden_count):
+            sum_out_hidden = np.dot(activation_hidden_i, self.weight_hidden[i]) + self.bias_hidden[i]
+            activation_hidden_i = self._sigmoid(sum_out_hidden)
+            activation_hidden.append(activation_hidden_i)
+        sum_out_out = np.dot(activation_hidden_i, self.weight_out) + self.bias_out
+        activation_out = self._sigmoid(sum_out_out)
+        return activation_hidden, activation_out
 
     def fit(self, X, y):
         self.samples_count = X.shape[0]
@@ -45,6 +50,9 @@ class my_MLP(object):
 
             for ind in indexes:
                 activation_hidden, activation_out = self._forward(X[j])
+
+
+
 
 
 
