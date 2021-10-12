@@ -31,9 +31,9 @@ class my_MLP(object):
         return activation_hidden, activation_out
 
     def fit(self, X, y):
-        self.samples_count = X.shape[0]
-        self.feature_count = X.shape[1]
-        self.class_count = y.shape[1]
+        self.samples_count = X.shape[0] #liczba próbek uczących
+        self.feature_count = X.shape[1] #liczba cech
+        self.class_count = y.shape[1] #liczba klas
         self.weight_hidden = []
         self.bias_hidden = []
         for i in range(self.hidden_count):
@@ -54,7 +54,7 @@ class my_MLP(object):
         #...
 
     def predict(self, X): #zwraca: [0] - prawdopodobieństwa dopasowania; [1] - dopasowana klasa
-        samples_count = X.shape[0]
+        samples_count = X.shape[0] #liczba próbek testujących
         predictions = []
         classes = []
 
