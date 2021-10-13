@@ -52,8 +52,34 @@ class my_MLP(object):
 
             for ind in indexes:
                 activation_hidden, activation_out = self._forward(X[j])
+                deri_out = activation_out*(1-activation_out)
+                delta_out = (activation_out - y[ind])*deri_out
+                grad_weight_out = np.outer(activation_hidden[self.hidden_count-1], delta_out)
+                grad_bias_out = delta_out
+                grad_weight_hidden = []
+                grad_bias_hidden = []
+                deri_hidden = activation_hidden[j]*(1-activation_hidden[j])
+                delta_hidden = np.dot(delta_out, np.transpose(self.weight_out))*deri_hidden
+                grad_weight_hidden.append(np.outer(activation_hidden[j], delta_hidden))
+                grad_bias_hidden.append(delta_hidden)
+                tmp = delta_hidden.copy()
+                for j in range(self.hidden_count-2,0,-1):
+                    deri_hidden = activation_hidden[j]*(1-activation_hidden[j])
+                    delta_hidden = np.dot(tmp, np.transpose(self.weight_hidden[j+1]))*deri_hidden
+                    grad_weight_hidden.append(np.outer(activation_hidden[j], delta_hidden))
+                    grad_bias_hidden.append(delta_hidden)
+                    tmp = delta_hidden.copy()
+                deri_hidden = activation_hidden[0]*(1-activation_hidden[0])
+                delta_hidden = np.dot(tmp, np.transpose(self.weight_hidden[1]))*deri_hidden
+                grad_weight_hidden.append(np.outer(activation_hidden[0], delta_hidden))
+                grad_bias_hidden.append(delta_hidden)
 
-        #...
+                self.weight_out = self.weight_out - self.eta*grad_weight_out
+                self.bias_out = self.bias_out - self.eta*grad_bias_out
+                for j in range(self.hidden_count):
+                    self.weight_hidden[j] = self.weight_hidden[j] - self.eta*grad_weight_hidden[self.hidden_count-1-j]
+                    self.bias_hidden[j] = self.bias_hidden[j] - self.eta*grad_bias_hidden[self.hidden_count-1-j]
+
 
     def predict(self, X): #zwraca: [0] - prawdopodobieństwa dopasowania; [1] - dopasowana klasa
         samples_count = X.shape[0] #liczba próbek testujących
@@ -81,7 +107,39 @@ class my_MLP(object):
         return new_instance
 
 
+def dokladnosc(self, y_r, y_w):
+    liczba = y_r.shape[0]
+    licznik = 0
+    for i in range(liczba):
+        czy_rozne = 0
+        for j in range(y_r.shape[1]):
+            if y_r[i][j] != y_w[i][j]:
+                czy_rozne = 1
+                break
+        if czy_rozne == 0:
+            licznik = licznik+1
+    wynik = (licznik*100)/liczba
+    return wynik
 
+
+#if __name__ == '__main__':
+#    X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
+
+#    y_iris_coded=[]
+#    for i in range(len(y_iris)):
+#        if y_iris[i] == 'Iris-setosa':
+#            y_iris_coded.append([1.,0.,0.])
+#        elif y_iris[i] == 'Iris-versicolor':
+#            y_iris_coded.append([0.,1.,0.])
+#        else:
+#            y_iris_coded.append([0.,0.,1.])
+
+#    y_iris_coded = np.array(y_iris_coded)
+
+#    X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
+    
+#    mlp1 = my_MLP()
+#    mlp1.fit(X_train, y_train)
 
 
 #    def _forward(self, X):
