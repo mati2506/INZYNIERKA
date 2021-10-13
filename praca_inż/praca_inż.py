@@ -41,7 +41,7 @@ class my_MLP(object):
         for i in range(self.hidden_count-1):
             self.weight_hidden.append(np.random.normal(0,0.1,size=(self.hidden[i], self.hidden[i+1])))
             self.bias_hidden.append(np.zeros(self.hidden[i+1]))
-        self.weight_out = np.random.normal(0,0.1,size=(self.hidden, self.class_count))
+        self.weight_out = np.random.normal(0,0.1,size=(self.hidden[hidden_count-1], self.class_count))
         self.bias_out = np.zeros(self.class_count)
 
         for i in range(self.epochs):
