@@ -36,9 +36,11 @@ class my_MLP(object):
         self.class_count = y.shape[1] #liczba klas
         self.weight_hidden = []
         self.bias_hidden = []
-        for i in range(self.hidden_count):
-            self.weight_hidden.append(np.random.normal(0,0.1,size=(self.feature_count, self.hidden)))
-            self.bias_hidden.append(np.zeros(self.hidden))
+        self.weight_hidden.append(np.random.normal(0,0.1,size=(self.feature_count, self.hidden[0])))
+        self.bias_hidden.append(np.zeros(self.hidden[0]))
+        for i in range(self.hidden_count-1):
+            self.weight_hidden.append(np.random.normal(0,0.1,size=(self.hidden[i], self.hidden[i+1])))
+            self.bias_hidden.append(np.zeros(self.hidden[i+1]))
         self.weight_out = np.random.normal(0,0.1,size=(self.hidden, self.class_count))
         self.bias_out = np.zeros(self.class_count)
 
@@ -66,6 +68,17 @@ class my_MLP(object):
             sample[index] = 1
             classes.append(sample)       
         return np.array(predictions), np.array(classes)
+
+    def copy(self):
+        new_instance = my_MLP(self.hidden, self.epochs, self.eta, self.shuffle)
+        new_instance.samples_count = self.samples_count.copy()
+        new_instance.feature_count = self.feature_count.copy()
+        new_instance.class_count = self.class_count.copy()
+        new_instance.weight_hidden = self.weight_hidden.copy()
+        new_instance.bias_hidden = self.bias_hidden.copy()
+        new_instance.weight_out = self.weight_out.copy()
+        new_instance.bias_out = self.bias_out.copy()
+        return new_instance
 
 
 
