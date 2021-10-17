@@ -1,5 +1,6 @@
 import numpy as np
 import math as mt
+import copy
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -110,14 +111,47 @@ class my_MLP(object):
 
     def copy(self):
         new_instance = my_MLP(self.hidden, self.epochs, self.eta, self.shuffle)
-        new_instance.samples_count = self.samples_count.copy()
-        new_instance.feature_count = self.feature_count.copy()
-        new_instance.class_count = self.class_count.copy()
-        new_instance.weight_hidden = self.weight_hidden.copy()
-        new_instance.bias_hidden = self.bias_hidden.copy()
-        new_instance.weight_out = self.weight_out.copy()
-        new_instance.bias_out = self.bias_out.copy()
+        new_instance.samples_count = self.samples_count
+        new_instance.feature_count = self.feature_count
+        new_instance.class_count = self.class_count
+        new_instance.weight_hidden = copy.deepcopy(self.weight_hidden)
+        new_instance.bias_hidden = copy.deepcopy(self.bias_hidden)
+        new_instance.weight_out = copy.deepcopy(self.weight_out)
+        new_instance.bias_out = copy.deepcopy(self.bias_out)
         return new_instance
+
+    def simple_pruning(self, factor): #factor - procentowa liczba połączeń do usunięcia
+        connect_count = self.feature_count*self.hidden[0]
+        for i in range(0,self.hidden_count-1,1):
+            connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
+        connect_count = connect_count + self.hidden[self.hidden_count-1]*self.class_count
+        numbers_for_pruning = int(np.floor(connect_count*factor/100))
+        
+        merged_weight = copy.deepcopy(self.weight_hidden)
+        merged_weight.append(self.weight_out.copy())
+
+        for i in range(numbers_for_pruning):
+            tmp_ind = []
+            tmp_val = []
+            for j in range(self.hidden_count+1):
+                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
+                tmp_val.append(merged_weight[j][tmp_ind[j]])
+            tmp = np.nanargmin(np.abs(np.array(tmp_val)))
+            merged_weight[tmp][tmp_ind[tmp]] = np.NaN
+
+        for i in range(self.hidden_count+1):
+            merged_weight[i][np.isnan(merged_weight[i])] = 0
+
+        new_weight_hidden = []
+        for i in range(self.hidden_count):
+            new_weight_hidden.append(merged_weight[i])
+        self.weight_hidden = copy.deepcopy(new_weight_hidden)
+        self.weight_out = merged_weight[self.hidden_count].copy()
+
+        return numbers_for_pruning
+
+    def next_prining(self):
+        pass
 
 
 def dokladnosc(y_r, y_w):
@@ -163,6 +197,16 @@ if __name__ == '__main__':
     print()
 
 
+    mlp1_cop = mlp1.copy()
+    pruning_count = mlp1_cop.simple_pruning(5)
+
+    _, y_pred_cop = mlp1_cop.predict(X_test)
+
+    print(pruning_count)
+    dokladnosc_test_cop = dokladnosc(y_test, y_pred_cop)
+    print("Dokładność klasyfikacji zbioru testowego po przycinaniu:")
+    print(dokladnosc_test_cop)
+    print()
 
 
 
