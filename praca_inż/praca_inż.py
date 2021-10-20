@@ -111,6 +111,7 @@ class my_MLP(object):
 
     def copy(self):
         new_instance = my_MLP(self.hidden, self.epochs, self.eta, self.shuffle)
+        new_instance.one = self.one
         new_instance.samples_count = self.samples_count
         new_instance.feature_count = self.feature_count
         new_instance.class_count = self.class_count
@@ -207,72 +208,3 @@ if __name__ == '__main__':
     print("Dokładność klasyfikacji zbioru testowego po przycinaniu:")
     print(dokladnosc_test_cop)
     print()
-
-
-
-#    def _compute_cost(self, y, output):
-#        J = 0
-#        for i in range(self.liczba_probek):
-#            for k in range(self.liczba_klas):
-#                J = J - (y[i][k]*mt.log(output[i][k])+(1-y[i][k])*mt.log(1-output[i][k]))
-
-#        return J
-
-#if __name__ == '__main__':
-#    X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
-
-#    y_iris_coded=[]
-#    for i in range(len(y_iris)):
-#        if y_iris[i] == 'Iris-setosa':
-#            y_iris_coded.append([1.,0.,0.])
-#        elif y_iris[i] == 'Iris-versicolor':
-#            y_iris_coded.append([0.,1.,0.])
-#        else:
-#            y_iris_coded.append([0.,0.,1.])
-
-#    y_iris_coded = np.array(y_iris_coded)
-
-#    X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
-    
-#    mlp1 = MLP()
-#    koszt, dokladnosc = mlp1.fit(X_train, y_train)
-
-#    print("Zbiór iris:")
-#    print("Koszty w kolejnych epokach:")
-#    print(koszt)
-#    print()
-#    print("Dokładności w kolejnych epokach:")
-#    print(dokladnosc)
-#    print()
-#    plt.plot(koszt, '*-')
-#    plt.title("Koszty w kolejnych epokach zbioru Iris")
-#    plt.figure()
-#    plt.plot(dokladnosc, '*-')
-#    plt.title("Dokładności w kolejnych epokach zbioru Iris")
-
-#    _, y_pred = mlp1.predict(X_test)
-
-#    dokladnosc_test = mlp1.dokladnosc(y_test, y_pred)
-#    print("Dokładność klasyfikacji zbioru testowego:")
-#    print(dokladnosc_test)
-#    print()
-#    #plt.show()
-
-#    mlp1skal=MLP()
-#    scaler1 = MinMaxScaler(feature_range=(0, 1))
-#    scaled1=scaler1.fit_transform(X_train)
-#    kosztskal, dokladnoscskal=mlp1skal.fit(scaled1,y_train)
-    
-#    print("Koszty w kolejnych epokach przeskalowane:")
-#    print(kosztskal)
-#    print()
-#    print("Dokładności w kolejnych epokach przeskalowane:")
-#    print(dokladnoscskal)
-#    print()
-#    plt.figure()
-#    plt.plot(kosztskal, '*-')
-#    plt.title("Koszty w kolejnych epokach zbioru Iris przeskalowanego")
-#    plt.figure()
-#    plt.plot(dokladnoscskal, '*-')
-#    plt.title("Dokładności w kolejnych epokach zbioru Iris przeskalowanego")
-#    plt.show()
