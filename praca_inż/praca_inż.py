@@ -19,7 +19,7 @@ class my_MLP(object):
         self.epochs = epochs    #Liczba epok
         self.eta = eta          #Współczynnik uczenia
         self.shuffle = shuffle  #Czy mieszać próbki w epokach
-        self.one = mono #czy tylko 1 warstwa ukryta
+        self.one = mono         #czy tylko 1 warstwa ukryta
 
     def _sigmoid(self, z):
         result = []
@@ -151,9 +151,63 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def next_prining(self):
-        pass
+    def _out_of_single_neuron(self, X, weight, bias, number, index):
+        activation_i = X.copy()
+        for i in range(number+1):
+            sum_out = np.dot(activation_i, weight[i]) + bias[i]
+            activation_i = self._sigmoid(sum_out)
+        return sum_out[index]
 
+    def simple_pruning_amendment(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
+        connect_count = self.feature_count*self.hidden[0]
+        for i in range(0,self.hidden_count-1,1):
+            connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
+        connect_count = connect_count + self.hidden[self.hidden_count-1]*self.class_count
+        numbers_for_pruning = int(np.floor(connect_count*factor/100))
+        
+        merged_weight = copy.deepcopy(self.weight_hidden)
+        merged_weight.append(self.weight_out.copy())
+        merged_bias = copy.deepcopy(self.bias_hidden)
+        merged_bias.append(self.bias_out.copy())
+        weight_for_amendment = copy.deepcopy(merged_weight)
+        bias_for_amendment = copy.deepcopy(merged_bias)
+
+        zero_weigths = 0
+        for i in range(self.hidden_count+1):
+            zero_weigths = zero_weigths + np.sum(merged_weight[i][merged_weight[i] == 0])
+        
+        for i in range(int(zero_weigths), numbers_for_pruning, 1):
+            for j in range(self.hidden_count+1):
+                merged_weight[j][merged_weight[j] == 0] = np.NaN
+
+            tmp_ind = []
+            tmp_val = []
+            for j in range(self.hidden_count+1):
+                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
+                tmp_val.append(merged_weight[j][tmp_ind[j]])
+            tmp = np.nanargmin(np.abs(np.array(tmp_val)))
+            
+            outs = []
+            for j in range(self.samples_count):
+                outs.append(self._out_of_single_neuron(X[j], weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp][1]))
+
+            merged_bias[tmp][1] = merged_bias[tmp][1] + np.mean(np.array(outs))
+            merged_weight[tmp][tmp_ind[tmp]] = 0
+
+            for j in range(self.hidden_count+1):
+                merged_weight[j][np.isnan(merged_weight[j])] = 0
+
+        new_weight_hidden = []
+        new_bias_hidden = []
+        for i in range(self.hidden_count):
+            new_weight_hidden.append(merged_weight[i])
+            new_bias_hidden.append(merged_bias[i])
+        self.weight_hidden = copy.deepcopy(new_weight_hidden)
+        self.bias_hidden = copy.deepcopy(new_bias_hidden)
+        self.weight_out = merged_weight[self.hidden_count].copy()
+        self.bias_out = merged_bias[self.hidden_count].copy()
+
+        return numbers_for_pruning
 
 def dokladnosc(y_r, y_w):
     liczba = y_r.shape[0]
@@ -187,7 +241,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
     #mlp1 = my_MLP(hidden=(15),mono=True)
-    mlp1 = my_MLP(hidden=(15,10,5),epochs=500)
+    mlp1 = my_MLP(hidden=(15,10,5),epochs=300)
     mlp1.fit(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
@@ -199,12 +253,24 @@ if __name__ == '__main__':
 
 
     mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(5)
+    pruning_count = mlp1_cop.simple_pruning(15)
 
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
-    print(pruning_count)
+    #print(pruning_count)
     dokladnosc_test_cop = dokladnosc(y_test, y_pred_cop)
     print("Dokładność klasyfikacji zbioru testowego po przycinaniu:")
     print(dokladnosc_test_cop)
+    print()
+
+
+    mlp1_cop2 = mlp1.copy()
+    pruning_count2 = mlp1_cop2.simple_pruning_amendment(15, X_train)
+
+    _, y_pred_cop2 = mlp1_cop2.predict(X_test)
+
+    #print(pruning_count2)
+    dokladnosc_test_cop2 = dokladnosc(y_test, y_pred_cop2)
+    print("Dokładność klasyfikacji zbioru testowego po przycinaniu z poprawką:")
+    print(dokladnosc_test_cop2)
     print()
