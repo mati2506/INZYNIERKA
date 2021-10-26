@@ -153,10 +153,10 @@ class my_MLP(object):
 
     def _out_of_single_neuron(self, X, weight, bias, number, index):
         activation_i = X.copy()
-        for i in range(number+1):
+        for i in range(number):
             sum_out = np.dot(activation_i, weight[i]) + bias[i]
             activation_i = self._sigmoid(sum_out)
-        return sum_out[index]
+        return activation_i[index[0]]*weight[number][index]
 
     def simple_pruning_amendment(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
         connect_count = self.feature_count*self.hidden[0]
@@ -189,7 +189,7 @@ class my_MLP(object):
             
             outs = []
             for j in range(self.samples_count):
-                outs.append(self._out_of_single_neuron(X[j], weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp][1]))
+                outs.append(self._out_of_single_neuron(X[j], weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
 
             merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(np.array(outs))
             merged_weight[tmp][tmp_ind[tmp]] = np.NaN
@@ -240,8 +240,8 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
-    #mlp1 = my_MLP(hidden=(15),mono=True)
-    mlp1 = my_MLP(hidden=(15,10,5),epochs=300)
+    #mlp1 = my_MLP(hidden=(50),mono=True)
+    mlp1 = my_MLP(hidden=(15,10,5), epochs=500)
     mlp1.fit(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
@@ -253,7 +253,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(15)
+    pruning_count = mlp1_cop.simple_pruning(30)
 
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop2 = mlp1.copy()
-    pruning_count2 = mlp1_cop2.simple_pruning_amendment(15, X_train)
+    pruning_count2 = mlp1_cop2.simple_pruning_amendment(35, X_train)
 
     _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
