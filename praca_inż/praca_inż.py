@@ -169,14 +169,14 @@ class my_MLP(object):
         merged_weight.append(self.weight_out.copy())
         merged_bias = copy.deepcopy(self.bias_hidden)
         merged_bias.append(self.bias_out.copy())
-        weight_for_amendment = copy.deepcopy(merged_weight)
-        bias_for_amendment = copy.deepcopy(merged_bias)
 
         zero_weigths = 0
         for i in range(self.hidden_count+1):
             zero_weigths = zero_weigths + np.sum(merged_weight[i][merged_weight[i] == 0])
         
         for i in range(int(zero_weigths), numbers_for_pruning, 1):
+            weight_for_amendment = copy.deepcopy(merged_weight)
+            bias_for_amendment = copy.deepcopy(merged_bias)
             for j in range(self.hidden_count+1):
                 merged_weight[j][merged_weight[j] == 0] = np.NaN
 
@@ -191,8 +191,8 @@ class my_MLP(object):
             for j in range(self.samples_count):
                 outs.append(self._out_of_single_neuron(X[j], weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp][1]))
 
-            merged_bias[tmp][1] = merged_bias[tmp][1] + np.mean(np.array(outs))
-            merged_weight[tmp][tmp_ind[tmp]] = 0
+            merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(np.array(outs))
+            merged_weight[tmp][tmp_ind[tmp]] = np.NaN
 
             for j in range(self.hidden_count+1):
                 merged_weight[j][np.isnan(merged_weight[j])] = 0
