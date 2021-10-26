@@ -169,14 +169,14 @@ class my_MLP(object):
         merged_weight.append(self.weight_out.copy())
         merged_bias = copy.deepcopy(self.bias_hidden)
         merged_bias.append(self.bias_out.copy())
+        weight_for_amendment = copy.deepcopy(merged_weight)
+        bias_for_amendment = copy.deepcopy(merged_bias)
 
         zero_weigths = 0
         for i in range(self.hidden_count+1):
             zero_weigths = zero_weigths + np.sum(merged_weight[i][merged_weight[i] == 0])
         
-        for i in range(int(zero_weigths), numbers_for_pruning, 1):
-            weight_for_amendment = copy.deepcopy(merged_weight)
-            bias_for_amendment = copy.deepcopy(merged_bias)
+        for i in range(int(zero_weigths), numbers_for_pruning, 1):      
             for j in range(self.hidden_count+1):
                 merged_weight[j][merged_weight[j] == 0] = np.NaN
 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
     #mlp1 = my_MLP(hidden=(50),mono=True)
-    mlp1 = my_MLP(hidden=(15,10,5), epochs=500)
+    mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
     mlp1.fit(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
@@ -253,7 +253,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(30)
+    pruning_count = mlp1_cop.simple_pruning(50)
 
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop2 = mlp1.copy()
-    pruning_count2 = mlp1_cop2.simple_pruning_amendment(35, X_train)
+    pruning_count2 = mlp1_cop2.simple_pruning_amendment(50, X_train)
 
     _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
