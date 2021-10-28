@@ -294,6 +294,8 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
+    alpha = 10 #% liczby połączeń do usunięcia przy przycinaniu
+
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
     mlp1.fit(X_train, y_train)
@@ -307,24 +309,36 @@ if __name__ == '__main__':
 
 
     mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(10)
+    pruning_count = mlp1_cop.simple_pruning(alpha)
 
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
     #print(pruning_count)
     dokladnosc_test_cop = dokladnosc(y_test, y_pred_cop)
-    print("Dokładność klasyfikacji zbioru testowego po przycinaniu:")
+    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag:")
     print(dokladnosc_test_cop)
     print()
 
 
     mlp1_cop2 = mlp1.copy()
-    pruning_count2 = mlp1_cop2.simple_pruning_amendment(10, X_train)
+    pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
 
     _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
     #print(pruning_count2)
     dokladnosc_test_cop2 = dokladnosc(y_test, y_pred_cop2)
-    print("Dokładność klasyfikacji zbioru testowego po przycinaniu z poprawką:")
+    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką:")
     print(dokladnosc_test_cop2)
+    print()
+
+
+    mlp1_cop3 = mlp1.copy()
+    pruning_count3 = mlp1_cop3.simple_pruning_amendment(alpha, X_train)
+
+    _, y_pred_cop3 = mlp1_cop3.predict(X_test)
+
+    #print(pruning_count3)
+    dokladnosc_test_cop3 = dokladnosc(y_test, y_pred_cop3)
+    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej wariancji:")
+    print(dokladnosc_test_cop3)
     print()
