@@ -208,6 +208,61 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
+    def pruning_by_variance(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
+        connect_count = self.feature_count*self.hidden[0]
+        for i in range(0,self.hidden_count-1,1):
+            connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
+        connect_count = connect_count + self.hidden[self.hidden_count-1]*self.class_count
+        numbers_for_pruning = int(np.floor(connect_count*factor/100))
+        
+        merged_weight = copy.deepcopy(self.weight_hidden)
+        merged_weight.append(self.weight_out.copy())
+        merged_bias = copy.deepcopy(self.bias_hidden)
+        merged_bias.append(self.bias_out.copy())
+        weight_for_calculation = copy.deepcopy(merged_weight)
+        bias_for_calculation = copy.deepcopy(merged_bias)
+
+        variances = []
+        means = []
+        for i in range(self.hidden_count+1):
+            var_tmp1 = []
+            mean_tmp1 = []
+            for j in range(weight_for_calculation[i].shape[0]):
+                var_tmp2 = []
+                mean_tmp2 = []
+                for k in range(weight_for_calculation[i].shape[1]):
+                    outs = self._outs_of_single_neuron(X, weight_for_calculation, bias_for_calculation, i, (j, k))
+                    var_tmp2.append(np.var(outs))
+                    mean_tmp2.append(np.mean(outs))
+                var_tmp1.append(var_tmp2)
+                mean_tmp1.append(mean_tmp2)
+            variances.append(np.array(var_tmp1))
+            means.append(np.array(mean_tmp1))
+
+        for i in range(numbers_for_pruning):      
+            tmp_ind = []
+            tmp_val = []
+            for j in range(self.hidden_count+1):
+                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(variances[j])),shape=variances[j].shape))
+                tmp_val.append(merged_weight[j][tmp_ind[j]])
+            tmp = np.nanargmin(np.abs(np.array(tmp_val)))
+
+            merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + means[tmp][tmp_ind[tmp]]
+            merged_weight[tmp][tmp_ind[tmp]] = 0
+            variances[tmp][tmp_ind[tmp]] = np.NaN
+
+        new_weight_hidden = []
+        new_bias_hidden = []
+        for i in range(self.hidden_count):
+            new_weight_hidden.append(merged_weight[i])
+            new_bias_hidden.append(merged_bias[i])
+        self.weight_hidden = copy.deepcopy(new_weight_hidden)
+        self.bias_hidden = copy.deepcopy(new_bias_hidden)
+        self.weight_out = merged_weight[self.hidden_count].copy()
+        self.bias_out = merged_bias[self.hidden_count].copy()
+
+        return numbers_for_pruning
+
 def dokladnosc(y_r, y_w):
     liczba = y_r.shape[0]
     licznik = 0
