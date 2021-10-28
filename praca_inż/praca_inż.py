@@ -151,12 +151,15 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def _out_of_single_neuron(self, X, weight, bias, number, index):
-        activation_i = X.copy()
-        for i in range(number):
-            sum_out = np.dot(activation_i, weight[i]) + bias[i]
-            activation_i = self._sigmoid(sum_out)
-        return activation_i[index[0]]*weight[number][index]
+    def _outs_of_single_neuron(self, X, weight, bias, number, index):
+        outs = []
+        for j in range(self.samples_count):
+            activation_i = X[j].copy()
+            for i in range(number):
+                sum_out = np.dot(activation_i, weight[i]) + bias[i]
+                activation_i = self._sigmoid(sum_out)
+            outs.append(activation_i[index[0]]*weight[number][index])
+        return np.array(outs)
 
     def simple_pruning_amendment(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
         connect_count = self.feature_count*self.hidden[0]
@@ -186,12 +189,8 @@ class my_MLP(object):
                 tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
                 tmp_val.append(merged_weight[j][tmp_ind[j]])
             tmp = np.nanargmin(np.abs(np.array(tmp_val)))
-            
-            outs = []
-            for j in range(self.samples_count):
-                outs.append(self._out_of_single_neuron(X[j], weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
 
-            merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(np.array(outs))
+            merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(self._outs_of_single_neuron(X, weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
             merged_weight[tmp][tmp_ind[tmp]] = np.NaN
 
             for j in range(self.hidden_count+1):
@@ -253,7 +252,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(50)
+    pruning_count = mlp1_cop.simple_pruning(10)
 
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
@@ -265,7 +264,7 @@ if __name__ == '__main__':
 
 
     mlp1_cop2 = mlp1.copy()
-    pruning_count2 = mlp1_cop2.simple_pruning_amendment(50, X_train)
+    pruning_count2 = mlp1_cop2.simple_pruning_amendment(10, X_train)
 
     _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
