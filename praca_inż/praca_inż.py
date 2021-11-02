@@ -263,19 +263,18 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-def dokladnosc(y_r, y_w):
-    liczba = y_r.shape[0]
-    licznik = 0
-    for i in range(liczba):
-        czy_rozne = 0
-        for j in range(y_r.shape[1]):
-            if y_r[i][j] != y_w[i][j]:
-                czy_rozne = 1
-                break
-        if czy_rozne == 0:
-            licznik = licznik+1
-    wynik = (licznik*100)/liczba
-    return wynik
+    def accuracy(self, y_real, y_out):
+        count = y_real.shape[0]
+        counter = 0
+        for i in range(count):
+            if_various = 0
+            for j in range(y_real.shape[1]):
+                if y_real[i][j] != y_out[i][j]:
+                    if_various = 1
+                    break
+            if if_various == 0:
+                counter = counter+1
+        return (counter*100)/count
 
 
 if __name__ == '__main__':
@@ -302,9 +301,9 @@ if __name__ == '__main__':
     
     _, y_pred = mlp1.predict(X_test)
 
-    dokladnosc_test = dokladnosc(y_test, y_pred)
+    accuracy_test = mlp1.accuracy(y_test, y_pred)
     print("Dokładność klasyfikacji zbioru testowego:")
-    print(dokladnosc_test)
+    print(accuracy_test)
     print()
 
 
@@ -314,9 +313,9 @@ if __name__ == '__main__':
     _, y_pred_cop = mlp1_cop.predict(X_test)
 
     #print(pruning_count)
-    dokladnosc_test_cop = dokladnosc(y_test, y_pred_cop)
+    accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
     print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag:")
-    print(dokladnosc_test_cop)
+    print(accuracy_test_cop)
     print()
 
 
@@ -326,9 +325,9 @@ if __name__ == '__main__':
     _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
     #print(pruning_count2)
-    dokladnosc_test_cop2 = dokladnosc(y_test, y_pred_cop2)
+    accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)
     print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką:")
-    print(dokladnosc_test_cop2)
+    print(accuracy_test_cop2)
     print()
 
 
@@ -338,7 +337,7 @@ if __name__ == '__main__':
     _, y_pred_cop3 = mlp1_cop3.predict(X_test)
 
     #print(pruning_count3)
-    dokladnosc_test_cop3 = dokladnosc(y_test, y_pred_cop3)
+    accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
     print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej wariancji:")
-    print(dokladnosc_test_cop3)
+    print(accuracy_test_cop3)
     print()
