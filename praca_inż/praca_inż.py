@@ -136,8 +136,12 @@ class my_MLP(object):
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
-                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
-                tmp_val.append(merged_weight[j][tmp_ind[j]])
+                if np.sum(np.isnan(merged_weight[j])) == np.size(merged_weight[j]):
+                    tmp_ind.append((0,0))
+                    tmp_val.append(np.NaN)
+                else:
+                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
+                    tmp_val.append(merged_weight[j][tmp_ind[j]])
             tmp = np.nanargmin(np.abs(np.array(tmp_val)))
             merged_weight[tmp][tmp_ind[tmp]] = np.NaN
 
@@ -187,8 +191,12 @@ class my_MLP(object):
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
-                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
-                tmp_val.append(merged_weight[j][tmp_ind[j]])
+                if np.sum(np.isnan(merged_weight[j])) == np.size(merged_weight[j]):
+                    tmp_ind.append((0,0))
+                    tmp_val.append(np.NaN)
+                else:
+                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
+                    tmp_val.append(merged_weight[j][tmp_ind[j]])
             tmp = np.nanargmin(np.abs(np.array(tmp_val)))
 
             merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(self._outs_of_single_neuron(X, weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
@@ -244,8 +252,12 @@ class my_MLP(object):
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
-                tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(variances[j])),shape=variances[j].shape))
-                tmp_val.append(merged_weight[j][tmp_ind[j]])
+                if np.sum(np.isnan(merged_weight[j])) == np.size(merged_weight[j]):
+                    tmp_ind.append((0,0))
+                    tmp_val.append(np.NaN)
+                else:
+                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
+                    tmp_val.append(merged_weight[j][tmp_ind[j]])
             tmp = np.nanargmin(np.abs(np.array(tmp_val)))
 
             merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + means[tmp][tmp_ind[tmp]]
@@ -307,8 +319,8 @@ if __name__ == '__main__':
     print()
 
 
-    if True:
-    #for alpha in range(1,95,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    #if True:
+    for alpha in range(1,95,10): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         mlp1_cop = mlp1.copy()
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
