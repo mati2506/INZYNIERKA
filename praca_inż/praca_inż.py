@@ -1,6 +1,7 @@
 import numpy as np
 import math as mt
 import copy
+import time
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -302,42 +303,49 @@ if __name__ == '__main__':
     _, y_pred = mlp1.predict(X_test)
 
     accuracy_test = mlp1.accuracy(y_test, y_pred)
-    print("Dokładność klasyfikacji zbioru testowego:")
-    print(accuracy_test)
+    print("Dokładność klasyfikacji zbioru testowego: " + str(accuracy_test) + "%")
     print()
 
 
-    mlp1_cop = mlp1.copy()
-    pruning_count = mlp1_cop.simple_pruning(alpha)
+    if True:
+    #for alpha in range(1,95,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+        mlp1_cop = mlp1.copy()
+        start1 = time.process_time()
+        pruning_count = mlp1_cop.simple_pruning(alpha)
+        end1 = time.process_time()
 
-    _, y_pred_cop = mlp1_cop.predict(X_test)
+        _, y_pred_cop = mlp1_cop.predict(X_test)
 
-    #print(pruning_count)
-    accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
-    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag:")
-    print(accuracy_test_cop)
-    print()
-
-
-    mlp1_cop2 = mlp1.copy()
-    pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
-
-    _, y_pred_cop2 = mlp1_cop2.predict(X_test)
-
-    #print(pruning_count2)
-    accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)
-    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką:")
-    print(accuracy_test_cop2)
-    print()
+        #print(pruning_count)
+        accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
+        print()
 
 
-    mlp1_cop3 = mlp1.copy()
-    pruning_count3 = mlp1_cop3.simple_pruning_amendment(alpha, X_train)
+        mlp1_cop2 = mlp1.copy()
+        start2 = time.process_time()
+        pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
+        end2 = time.process_time()
 
-    _, y_pred_cop3 = mlp1_cop3.predict(X_test)
+        _, y_pred_cop2 = mlp1_cop2.predict(X_test)
 
-    #print(pruning_count3)
-    accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
-    print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej wariancji:")
-    print(accuracy_test_cop3)
-    print()
+        #print(pruning_count2)
+        accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką: " + str(accuracy_test_cop2) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wag z poprawką: " + str(end2-start2) + "s")
+        print()
+
+
+        mlp1_cop3 = mlp1.copy()
+        start3 = time.process_time()
+        pruning_count3 = mlp1_cop3.simple_pruning_amendment(alpha, X_train)
+        end3 = time.process_time()
+
+        _, y_pred_cop3 = mlp1_cop3.predict(X_test)
+
+        #print(pruning_count3)
+        accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej wariancji: " + str(accuracy_test_cop3) + "%")
+        print("Czas trwania przycinania metodą najmniejszej wariancji: " + str(end3-start3) + "s")
+        print()
