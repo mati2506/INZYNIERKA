@@ -252,12 +252,12 @@ class my_MLP(object):
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
-                if np.sum(np.isnan(merged_weight[j])) == np.size(merged_weight[j]):
+                if np.sum(np.isnan(merged_weight[j])) == np.size(variances[j]):
                     tmp_ind.append((0,0))
                     tmp_val.append(np.NaN)
                 else:
-                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(merged_weight[j])),shape=merged_weight[j].shape))
-                    tmp_val.append(merged_weight[j][tmp_ind[j]])
+                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(variances[j])),shape=variances[j].shape))
+                    tmp_val.append(variances[j][tmp_ind[j]])
             tmp = np.nanargmin(np.abs(np.array(tmp_val)))
 
             merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + means[tmp][tmp_ind[tmp]]
@@ -358,6 +358,6 @@ if __name__ == '__main__':
 
         #print(pruning_count3)
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
-        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej wariancji: " + str(accuracy_test_cop3) + "%")
-        print("Czas trwania przycinania metodą najmniejszej wariancji: " + str(end3-start3) + "s")
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
         print()
