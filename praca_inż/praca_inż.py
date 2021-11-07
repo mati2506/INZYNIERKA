@@ -183,11 +183,11 @@ class my_MLP(object):
         zero_weigths = 0
         for i in range(self.hidden_count+1):
             zero_weigths = zero_weigths + np.sum(merged_weight[i][merged_weight[i] == 0])
+
+        for i in range(self.hidden_count+1):
+            merged_weight[i][merged_weight[i] == 0] = np.NaN
         
         for i in range(int(zero_weigths), numbers_for_pruning, 1):      
-            for j in range(self.hidden_count+1):
-                merged_weight[j][merged_weight[j] == 0] = np.NaN
-
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
@@ -202,8 +202,8 @@ class my_MLP(object):
             merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(self._outs_of_single_neuron(X, weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
             merged_weight[tmp][tmp_ind[tmp]] = np.NaN
 
-            for j in range(self.hidden_count+1):
-                merged_weight[j][np.isnan(merged_weight[j])] = 0
+        for i in range(self.hidden_count+1):
+            merged_weight[i][np.isnan(merged_weight[i])] = 0
 
         new_weight_hidden = []
         new_bias_hidden = []
@@ -252,7 +252,7 @@ class my_MLP(object):
             tmp_ind = []
             tmp_val = []
             for j in range(self.hidden_count+1):
-                if np.sum(np.isnan(merged_weight[j])) == np.size(variances[j]):
+                if np.sum(np.isnan(variances[j])) == np.size(variances[j]):
                     tmp_ind.append((0,0))
                     tmp_val.append(np.NaN)
                 else:
@@ -351,9 +351,9 @@ if __name__ == '__main__':
 
         mlp1_cop3 = mlp1.copy()
         start3 = time.process_time()
-        pruning_count3 = mlp1_cop3.simple_pruning_amendment(alpha, X_train)
+        pruning_count3 = mlp1_cop3.pruning_by_variance(alpha, X_train)
         end3 = time.process_time()
-
+        
         _, y_pred_cop3 = mlp1_cop3.predict(X_test)
 
         #print(pruning_count3)
