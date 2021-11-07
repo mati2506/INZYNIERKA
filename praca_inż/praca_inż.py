@@ -308,7 +308,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
     alpha = 10 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    name = "iris" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+    name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
@@ -323,7 +323,7 @@ if __name__ == '__main__':
     accuracies = []
     times = []
     #if True: #jeżeli ma być bez pętli
-    for alpha in range(1,96,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    for alpha in range(0,96,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         mlp1_cop = mlp1.copy()
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
