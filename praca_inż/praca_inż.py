@@ -1,5 +1,6 @@
 import numpy as np
 import math as mt
+import pandas as pd
 import copy
 import time
 import matplotlib.pyplot as plt
@@ -306,7 +307,8 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
-    alpha = 10 #% liczby połączeń do usunięcia przy przycinaniu
+    alpha = 10 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
+    name = "iris" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
@@ -318,46 +320,55 @@ if __name__ == '__main__':
     print("Dokładność klasyfikacji zbioru testowego: " + str(accuracy_test) + "%")
     print()
 
-
-    if True:
-    #for alpha in range(1,95,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    accuracies = []
+    times = []
+    #if True: #jeżeli ma być bez pętli
+    for alpha in range(1,96,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         mlp1_cop = mlp1.copy()
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
         end1 = time.process_time()
-
         _, y_pred_cop = mlp1_cop.predict(X_test)
-
-        #print(pruning_count)
         accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
-        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
-        print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
-        print()
-
 
         mlp1_cop2 = mlp1.copy()
         start2 = time.process_time()
         pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
         end2 = time.process_time()
-
         _, y_pred_cop2 = mlp1_cop2.predict(X_test)
-
-        #print(pruning_count2)
-        accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)
-        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką: " + str(accuracy_test_cop2) + "%")
-        print("Czas trwania przycinania metodą najmniejszych wag z poprawką: " + str(end2-start2) + "s")
-        print()
-
+        accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)       
 
         mlp1_cop3 = mlp1.copy()
         start3 = time.process_time()
         pruning_count3 = mlp1_cop3.pruning_by_variance(alpha, X_train)
-        end3 = time.process_time()
-        
+        end3 = time.process_time()        
         _, y_pred_cop3 = mlp1_cop3.predict(X_test)
-
-        #print(pruning_count3)
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
-        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
-        print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
-        print()
+
+
+        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
+        #print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
+        #print()
+
+        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką: " + str(accuracy_test_cop2) + "%")
+        #print("Czas trwania przycinania metodą najmniejszych wag z poprawką: " + str(end2-start2) + "s")
+        #print()
+
+        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
+        #print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
+        #print()
+
+        #print("Liczba połączeń, które były usuwane: " + str(pruning_count))
+        #print()
+
+        accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3])
+        times.append([alpha, (end1-start1), (end2-start2), (end3-start3)])
+
+
+    accuracies = np.array(accuracies)
+    accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda najmniejszych wag",
+                                                        "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
+    times_data = pd.DataFrame(np.array(times), columns=["Alpha", "Metoda najmniejszych wag",
+                                                        "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
+    accuracies_data.to_csv(("wyniki/"+name+"_dokładności.csv"), index=False)
+    times_data.to_csv(("wyniki/"+name+"_czasy.csv"), index=False)
