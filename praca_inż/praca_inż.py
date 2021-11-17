@@ -297,7 +297,7 @@ class my_MLP(object):
         s = []
         for i in range(self.hidden_count):
             s.append(np.zeros(self.weight_hidden[i].shape))
-        s.append(self.weight_out.shape)
+        s.append(np.zeros(self.weight_out.shape))
 
         for i in range(self.epochs):            
             last_weight_hidden = copy.deepcopy(self.weight_hidden)
@@ -355,7 +355,7 @@ class my_MLP(object):
             tmp = np.zeros(self.weight_out.shape)
             for ij in range(self.weight_out.shape[0]):
                 for ik in range(self.weight_out.shape[1]):
-                    tmp[ij,ik] = ((self.out[ij,ik]-last_weight_out[ij,ik])**2)*self.weight_out[ij,ik]/(self.eta*(self.weight_out[ij,ik]-zero_weight_out[ij,ik]))
+                    tmp[ij,ik] = ((self.weight_out[ij,ik]-last_weight_out[ij,ik])**2)*self.weight_out[ij,ik]/(self.eta*(self.weight_out[ij,ik]-zero_weight_out[ij,ik]))
             s_change.append(tmp)
 
             for ii in range(self.hidden_count+1):
@@ -363,7 +363,7 @@ class my_MLP(object):
 
         return s
 
-    def fit_pruning(self, s_in, alpha): #część przycinania
+    def fit_pruning(self, s_in, factor, X): #część przycinania
         s = copy.deepcopy(s_in)
 
         connect_count = self.feature_count*self.hidden[0]
@@ -437,12 +437,12 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
     
-    alpha = 10 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
+    alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
     name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
-    mlp1.fit(X_train, y_train)
+    s = mlp1.fit_for_pruning(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
 
@@ -475,6 +475,13 @@ if __name__ == '__main__':
         _, y_pred_cop3 = mlp1_cop3.predict(X_test)
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
 
+        mlp1_cop4 = mlp1.copy()
+        start4 = time.process_time()
+        pruning_count4 = mlp1_cop4.fit_pruning(s, alpha, X_train)
+        end4 = time.process_time()        
+        _, y_pred_cop4 = mlp1_cop4.predict(X_test)
+        accuracy_test_cop4 = mlp1_cop4.accuracy(y_test, y_pred_cop4)
+
 
         print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
         print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
@@ -486,6 +493,10 @@ if __name__ == '__main__':
 
         print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
         print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
+        print()
+
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszej zmienności wag: " + str(accuracy_test_cop4) + "%")
+        print("Czas trwania przycinania metodą najmniejszych najmniejszej zmienności wag: " + str(end4-start4) + "s")
         print()
 
         print("Liczba połączeń, które były usuwane: " + str(pruning_count))
