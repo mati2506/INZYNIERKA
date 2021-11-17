@@ -40,7 +40,7 @@ class my_MLP(object):
         activation_out = self._sigmoid(sum_out_out)
         return activation_hidden, activation_out
 
-    def fit(self, X, y):
+    def fit(self, X, y): #samo uczenie
         self.samples_count = X.shape[0] #liczba próbek uczących
         self.feature_count = X.shape[1] #liczba cech
         self.class_count = y.shape[1] #liczba klas
@@ -277,7 +277,7 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def fit_for_pruning(self, X, y): #część uczenia + wyliczanie zmiennej decyzyjnej przycinania
+    def fit_for_pruning(self, X, y): #uczenie + wyliczanie zmiennej decyzyjnej przycinania najmniejszej zmienności wag
         self.samples_count = X.shape[0] #liczba próbek uczących
         self.feature_count = X.shape[1] #liczba cech
         self.class_count = y.shape[1] #liczba klas
@@ -363,7 +363,7 @@ class my_MLP(object):
 
         return s
 
-    def fit_pruning(self, s_in, factor, X): #część przycinania
+    def fit_pruning(self, s_in, factor, X):
         s = copy.deepcopy(s_in)
 
         connect_count = self.feature_count*self.hidden[0]
