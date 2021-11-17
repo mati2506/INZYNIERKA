@@ -277,6 +277,77 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
+    def fit_with_pruning(self, X, y, alpha, eta): #NIE WIEM, CO TO TA ETA WE WZORZE!!!
+        self.samples_count = X.shape[0] #liczba próbek uczących
+        self.feature_count = X.shape[1] #liczba cech
+        self.class_count = y.shape[1] #liczba klas
+        self.weight_hidden = []
+        self.bias_hidden = []
+        self.weight_hidden.append(np.random.normal(0,0.1,size=(self.feature_count, self.hidden[0])))
+        self.bias_hidden.append(np.zeros(self.hidden[0]))
+        for i in range(self.hidden_count-1):
+            self.weight_hidden.append(np.random.normal(0,0.1,size=(self.hidden[i], self.hidden[i+1])))
+            self.bias_hidden.append(np.zeros(self.hidden[i+1]))
+        self.weight_out = np.random.normal(0,0.1,size=(self.hidden[self.hidden_count-1], self.class_count))
+        self.bias_out = np.zeros(self.class_count)
+
+        zero_weight_hidden = copy.deepcopy(self.weight_hidden)
+        zero_weight_out = self.weight_out.copy()
+        last_weight_hidden = copy.deepcopy(self.weight_hidden)
+        last_weight_out = self.weight_out.copy()
+
+        s = []
+        for i in range(self.hidden_count):
+            s.append(np.zeros(self.weight_hidden[i].shape))
+        s.append(self.weight_out.shape)
+
+        for i in range(self.epochs):
+            indexes = np.array(range(self.samples_count))
+
+            if self.shuffle == True:
+                indexes = shuffle(indexes)
+
+            for ind in indexes:
+                activation_hidden, activation_out = self._forward(X[ind])
+                deri_out = activation_out*(1-activation_out)
+                delta_out = (activation_out - y[ind])*deri_out
+                grad_weight_out = np.outer(activation_hidden[self.hidden_count-1], delta_out)
+                grad_bias_out = delta_out
+                grad_weight_hidden = []
+                grad_bias_hidden = []
+                if self.hidden_count > 1:
+                    deri_hidden = activation_hidden[self.hidden_count-1]*(1-activation_hidden[self.hidden_count-1])
+                    delta_hidden = np.dot(delta_out, np.transpose(self.weight_out))*deri_hidden
+                    grad_weight_hidden.append(np.outer(activation_hidden[self.hidden_count-2], delta_hidden))
+                    grad_bias_hidden.append(delta_hidden)
+                    tmp = delta_hidden.copy()
+                    for j in range(self.hidden_count-2,0,-1):
+                        deri_hidden = activation_hidden[j]*(1-activation_hidden[j])
+                        delta_hidden = np.dot(tmp, np.transpose(self.weight_hidden[j+1]))*deri_hidden
+                        grad_weight_hidden.append(np.outer(activation_hidden[j-1], delta_hidden))
+                        grad_bias_hidden.append(delta_hidden)
+                        tmp = delta_hidden.copy()
+                else:
+                    tmp = delta_out.copy()
+                deri_hidden = activation_hidden[0]*(1-activation_hidden[0])
+                if self.one:
+                    delta_hidden = np.dot(tmp, np.transpose(self.weight_out))*deri_hidden
+                else:
+                    delta_hidden = np.dot(tmp, np.transpose(self.weight_hidden[1]))*deri_hidden
+                grad_weight_hidden.append(np.outer(X[ind], delta_hidden))
+                grad_bias_hidden.append(delta_hidden)
+
+                self.weight_out = self.weight_out - self.eta*grad_weight_out
+                self.bias_out = self.bias_out - self.eta*grad_bias_out
+                for j in range(self.hidden_count):
+                    self.weight_hidden[j] = self.weight_hidden[j] - self.eta*grad_weight_hidden[self.hidden_count-1-j]
+                    self.bias_hidden[j] = self.bias_hidden[j] - self.eta*grad_bias_hidden[self.hidden_count-1-j]
+
+                s_change = []
+                for ii in range(self.hidden_count):
+                    tmp = np.zeros(self.weight_hidden[i].shape)
+
+
     def accuracy(self, y_real, y_out):
         count = y_real.shape[0]
         counter = 0
@@ -322,8 +393,8 @@ if __name__ == '__main__':
 
     accuracies = []
     times = []
-    #if True: #jeżeli ma być bez pętli
-    for alpha in range(0,96,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    if True: #jeżeli ma być bez pętli
+    #for alpha in range(0,96,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         mlp1_cop = mlp1.copy()
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
@@ -346,29 +417,29 @@ if __name__ == '__main__':
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
 
 
-        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
-        #print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
-        #print()
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag: " + str(accuracy_test_cop) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wag: " + str(end1-start1) + "s")
+        print()
 
-        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką: " + str(accuracy_test_cop2) + "%")
-        #print("Czas trwania przycinania metodą najmniejszych wag z poprawką: " + str(end2-start2) + "s")
-        #print()
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wag z poprawką: " + str(accuracy_test_cop2) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wag z poprawką: " + str(end2-start2) + "s")
+        print()
 
-        #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
-        #print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
-        #print()
+        print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
+        print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
+        print()
 
-        #print("Liczba połączeń, które były usuwane: " + str(pruning_count))
-        #print()
+        print("Liczba połączeń, które były usuwane: " + str(pruning_count))
+        print()
 
-        accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3])
-        times.append([alpha, (end1-start1), (end2-start2), (end3-start3)])
+    #    accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3])
+    #    times.append([alpha, (end1-start1), (end2-start2), (end3-start3)])
 
 
-    accuracies = np.array(accuracies)
-    accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda najmniejszych wag",
-                                                        "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
-    times_data = pd.DataFrame(np.array(times), columns=["Alpha", "Metoda najmniejszych wag",
-                                                        "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
-    accuracies_data.to_csv(("wyniki/"+name+"_dokładności.csv"), index=False)
-    times_data.to_csv(("wyniki/"+name+"_czasy.csv"), index=False)
+    #accuracies = np.array(accuracies)
+    #accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda najmniejszych wag",
+    #                                                    "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
+    #times_data = pd.DataFrame(np.array(times), columns=["Alpha", "Metoda najmniejszych wag",
+    #                                                    "Metoda najmniejszych wag z poprawką", "Metoda najmniejszych wariancji"])
+    #accuracies_data.to_csv(("wyniki/"+name+"_dokładności.csv"), index=False)
+    #times_data.to_csv(("wyniki/"+name+"_czasy.csv"), index=False)
