@@ -277,7 +277,7 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def fit_with_pruning(self, X, y, alpha): #NIE WIEM, CO TO TA ETA WE WZORZE!!!
+    def fit_for_pruning(self, X, y): #część uczenia + wyliczanie zmiennej decyzyjnej przycinania
         self.samples_count = X.shape[0] #liczba próbek uczących
         self.feature_count = X.shape[1] #liczba cech
         self.class_count = y.shape[1] #liczba klas
@@ -361,7 +361,51 @@ class my_MLP(object):
             for ii in range(self.hidden_count+1):
                 s[ii] = s[ii] + s_change[ii]
 
-        #dalsze czynności
+        return s
+
+    def fit_pruning(self, s_in, alpha): #część przycinania
+        s = copy.deepcopy(s_in)
+
+        connect_count = self.feature_count*self.hidden[0]
+        for i in range(0,self.hidden_count-1,1):
+            connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
+        connect_count = connect_count + self.hidden[self.hidden_count-1]*self.class_count
+        numbers_for_pruning = int(np.floor(connect_count*factor/100))
+        
+        merged_weight = copy.deepcopy(self.weight_hidden)
+        merged_weight.append(self.weight_out.copy())
+        merged_bias = copy.deepcopy(self.bias_hidden)
+        merged_bias.append(self.bias_out.copy())
+        weight_for_amendment = copy.deepcopy(merged_weight)
+        bias_for_amendment = copy.deepcopy(merged_bias)
+
+        for i in range(numbers_for_pruning):      
+            tmp_ind = []
+            tmp_val = []
+            for j in range(self.hidden_count+1):
+                if np.sum(np.isnan(s[j])) == np.size(s[j]):
+                    tmp_ind.append((0,0))
+                    tmp_val.append(np.NaN)
+                else:
+                    tmp_ind.append(np.unravel_index(np.nanargmin(np.abs(s[j])),shape=s[j].shape))
+                    tmp_val.append(s[j][tmp_ind[j]])
+            tmp = np.nanargmin(np.abs(np.array(tmp_val)))
+
+            merged_bias[tmp][tmp_ind[tmp][1]] = merged_bias[tmp][tmp_ind[tmp][1]] + np.mean(self._outs_of_single_neuron(X, weight_for_amendment, bias_for_amendment, tmp, tmp_ind[tmp]))
+            merged_weight[tmp][tmp_ind[tmp]] = 0
+            s[tmp][tmp_ind[tmp]] = np.NaN
+
+        new_weight_hidden = []
+        new_bias_hidden = []
+        for i in range(self.hidden_count):
+            new_weight_hidden.append(merged_weight[i])
+            new_bias_hidden.append(merged_bias[i])
+        self.weight_hidden = copy.deepcopy(new_weight_hidden)
+        self.bias_hidden = copy.deepcopy(new_bias_hidden)
+        self.weight_out = merged_weight[self.hidden_count].copy()
+        self.bias_out = merged_bias[self.hidden_count].copy()
+
+        return numbers_for_pruning
 
     def accuracy(self, y_real, y_out):
         count = y_real.shape[0]
