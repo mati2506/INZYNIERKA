@@ -277,7 +277,7 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def fit_with_pruning(self, X, y, alpha, eta): #NIE WIEM, CO TO TA ETA WE WZORZE!!!
+    def fit_with_pruning(self, X, y, alpha): #NIE WIEM, CO TO TA ETA WE WZORZE!!!
         self.samples_count = X.shape[0] #liczba próbek uczących
         self.feature_count = X.shape[1] #liczba cech
         self.class_count = y.shape[1] #liczba klas
@@ -293,15 +293,16 @@ class my_MLP(object):
 
         zero_weight_hidden = copy.deepcopy(self.weight_hidden)
         zero_weight_out = self.weight_out.copy()
-        last_weight_hidden = copy.deepcopy(self.weight_hidden)
-        last_weight_out = self.weight_out.copy()
 
         s = []
         for i in range(self.hidden_count):
             s.append(np.zeros(self.weight_hidden[i].shape))
         s.append(self.weight_out.shape)
 
-        for i in range(self.epochs):
+        for i in range(self.epochs):            
+            last_weight_hidden = copy.deepcopy(self.weight_hidden)
+            last_weight_out = self.weight_out.copy()
+
             indexes = np.array(range(self.samples_count))
 
             if self.shuffle == True:
@@ -343,10 +344,24 @@ class my_MLP(object):
                     self.weight_hidden[j] = self.weight_hidden[j] - self.eta*grad_weight_hidden[self.hidden_count-1-j]
                     self.bias_hidden[j] = self.bias_hidden[j] - self.eta*grad_bias_hidden[self.hidden_count-1-j]
 
-                s_change = []
-                for ii in range(self.hidden_count):
-                    tmp = np.zeros(self.weight_hidden[i].shape)
+            s_change = []
+            for ii in range(self.hidden_count):
+                tmp = np.zeros(self.weight_hidden[ii].shape)
+                for ij in range(self.weight_hidden[ii].shape[0]):
+                    for ik in range(self.weight_hidden[ii].shape[1]):
+                        if self.weight_hidden[ii][ij,ik] != zero_weight_hidden[ii][ij,ik]:
+                            tmp[ij,ik] = ((self.weight_hidden[ii][ij,ik]-last_weight_hidden[ii][ij,ik])**2)*self.weight_hidden[ii][ij,ik]/(self.eta*(self.weight_hidden[ii][ij,ik]-zero_weight_hidden[ii][ij,ik]))
+                s_change.append(tmp)
+            tmp = np.zeros(self.weight_out.shape)
+            for ij in range(self.weight_out.shape[0]):
+                for ik in range(self.weight_out.shape[1]):
+                    tmp[ij,ik] = ((self.out[ij,ik]-last_weight_out[ij,ik])**2)*self.weight_out[ij,ik]/(self.eta*(self.weight_out[ij,ik]-zero_weight_out[ij,ik]))
+            s_change.append(tmp)
 
+            for ii in range(self.hidden_count+1):
+                s[ii] = s[ii] + s_change[ii]
+
+        #dalsze czynności
 
     def accuracy(self, y_real, y_out):
         count = y_real.shape[0]
