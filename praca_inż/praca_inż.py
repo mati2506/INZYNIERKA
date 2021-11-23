@@ -506,8 +506,8 @@ if __name__ == '__main__':
         times.append([alpha, (end1-start1), (end2-start2), (end3-start3), (end4-start4)])
 
 
-    accuracies = np.array(accuracies)
-    times = np.array(times)
+    accuracies = np.round(np.array(accuracies), 4)
+    times = np.round(np.array(times), 4)
     accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda intuicyjna",
                                                         "Ulepszona metoda intuicyjna", "Metoda najmniejszych wariancji",
                                                         "Metoda Karnin'a"])
