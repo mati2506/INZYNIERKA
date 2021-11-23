@@ -508,6 +508,8 @@ if __name__ == '__main__':
 
     accuracies = np.round(np.array(accuracies), 4)
     times = np.round(np.array(times), 4)
+
+    #generowanie csv
     accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda intuicyjna",
                                                         "Ulepszona metoda intuicyjna", "Metoda najmniejszych wariancji",
                                                         "Metoda Karnin'a"])
@@ -515,3 +517,29 @@ if __name__ == '__main__':
                                                         "Metoda najmniejszych wariancji", "Metoda Karnin'a"])
     accuracies_data.to_csv(("wyniki/"+name+"_dokładności.csv"), index=False)
     times_data.to_csv(("wyniki/"+name+"_czasy.csv"), index=False)
+
+    #generowanie wykresów
+    plt.figure()
+    plt.plot(accuracies[:,0],accuracies[:,2],label="Metoda intuicyjna")
+    plt.plot(accuracies[:,0],accuracies[:,3],label="Ulepszona metoda intuicyjna")
+    plt.plot(accuracies[:,0],accuracies[:,4],label="Metoda najmniejszych wariancji")
+    plt.plot(accuracies[:,0],accuracies[:,5],label="Metoda Karnin'a")
+    plt.title("Dokładności klasyfikacji dla zbioru " + name)
+    plt.xlabel("Procent usuniętych połączeń")
+    plt.ylabel("Dokładność klasyfikacji dla zbioru testowego")
+    plt.legend()
+    plt.savefig("wyniki/"+name+"_dokładności.png")
+
+    plt.figure()
+    plt.plot(times[:,0],times[:,1],label="Metoda intuicyjna")
+    plt.plot(times[:,0],times[:,2],label="Ulepszona metoda intuicyjna")
+    plt.plot(times[:,0],times[:,3],label="Metoda najmniejszych wariancji")
+    plt.plot(times[:,0],times[:,4],label="Metoda Karnin'a")
+    plt.title("Czasy trwania przycinania dla zbioru " + name)
+    plt.xlabel("Procent usuniętych połączeń")
+    plt.ylabel("Czas przycinania")
+    plt.legend()
+    plt.savefig("wyniki/"+name+"_czasy.png")
+
+    #generowanie kodów LaTeX dla tabel
+    #...
