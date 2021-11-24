@@ -423,7 +423,7 @@ class my_MLP(object):
 
 if __name__ == '__main__':
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 1 #wybór zbioru do wczytania
+    which_data = 2 #wybór zbioru do wczytania
 
     if which_data == 0:
         name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
@@ -440,7 +440,7 @@ if __name__ == '__main__':
 
         y_iris_coded = np.array(y_iris_coded)
 
-        X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
+        X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=2)
 
     elif which_data == 1:
         name = "first-order" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
@@ -455,6 +455,31 @@ if __name__ == '__main__':
         X_test = test[:,0:51]
         y_test = test[:,51:]
         y_test[y_test==(-1)] = 0
+
+    elif which_data == 2:
+        name = "Dry_Bean" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+
+        data = pd.read_excel('zbiory/Dry_Bean_Dataset.xlsx')
+        X_bean = data.iloc[:,0:16].to_numpy()
+        y_bean = []
+        for i in range(X_bean.shape[0]):
+            if data.iloc[i,16] == 'SEKER':
+                y_bean.append([1.,0.,0.,0.,0.,0.,0.])
+            elif data.iloc[i,16] == 'BARBUNYA':
+                y_bean.append([0.,1.,0.,0.,0.,0.,0.])
+            elif data.iloc[i,16] == 'BOMBAY':
+                y_bean.append([0.,0.,1.,0.,0.,0.,0.])
+            elif data.iloc[i,16] == 'CALI':
+                y_bean.append([0.,0.,0.,1.,0.,0.,0.])
+            elif data.iloc[i,16] == 'HOROZ':
+                y_bean.append([0.,0.,0.,0.,1.,0.,0.])
+            elif data.iloc[i,16] == 'SIRA':
+                y_bean.append([0.,0.,0.,0.,0.,1.,0.])
+            elif data.iloc[i,16] == 'DERMASON':
+                y_bean.append([0.,0.,0.,0.,0.,0.,1.])
+        y_bean = np.array(y_bean)
+
+        X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2)
     
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
