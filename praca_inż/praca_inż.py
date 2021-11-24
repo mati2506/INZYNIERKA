@@ -411,12 +411,7 @@ class my_MLP(object):
         count = y_real.shape[0]
         counter = 0
         for i in range(count):
-            if_various = 0
-            for j in range(y_real.shape[1]):
-                if y_real[i][j] != y_out[i][j]:
-                    if_various = 1
-                    break
-            if if_various == 0:
+            if np.argmax(y_real[i]) == np.argmax(y_out[i]):
                 counter = counter+1
         return (counter*100)/count
 
@@ -551,8 +546,8 @@ if __name__ == '__main__':
     #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
-    mlp1.fit(X_train, y_train)
-    #s = mlp1.fit_for_pruning(X_train, y_train)
+    #mlp1.fit(X_train, y_train)
+    s = mlp1.fit_for_pruning(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
 
