@@ -463,8 +463,8 @@ if __name__ == '__main__':
 
         data = pd.read_excel('zbiory/Dry_Bean_Dataset.xlsx')
         X_bean = data.iloc[:,0:16].to_numpy()
-        X_bean[:,0] = X_bean[:,0]/10000
-        X_bean[:,6] = X_bean[:,6]/10000
+        X_bean[:,0] = X_bean[:,0]/1000
+        X_bean[:,6] = X_bean[:,6]/1000
         y_bean = []
         for i in range(X_bean.shape[0]):
             if data.iloc[i,16] == 'SEKER':
