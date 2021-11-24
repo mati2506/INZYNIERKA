@@ -423,7 +423,7 @@ class my_MLP(object):
 
 if __name__ == '__main__':
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 2 #wybór zbioru do wczytania
+    which_data = 3 #wybór zbioru do wczytania
 
     if which_data == 0:
         name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
@@ -480,9 +480,48 @@ if __name__ == '__main__':
         y_bean = np.array(y_bean)
 
         X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2)
+
+    elif which_data == 3:
+        name = "Crowdsourced_Mapping" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+
+        data_train = pd.read_csv('zbiory/training_Crowdsourced.csv')
+        X_train = data_train.iloc[:,1:].to_numpy()
+        y_train = []
+        for i in range(X_train.shape[0]):
+            if data_train.iloc[i,0] == 'impervious':
+                y_train.append([1.,0.,0.,0.,0.,0.])
+            elif data_train.iloc[i,0] == 'farm':
+                y_train.append([0.,1.,0.,0.,0.,0.])
+            elif data_train.iloc[i,0] == 'forest':
+                y_train.append([0.,0.,1.,0.,0.,0.])
+            elif data_train.iloc[i,0] == 'grass':
+                y_train.append([0.,0.,0.,1.,0.,0.])
+            elif data_train.iloc[i,0] == 'orchard':
+                y_train.append([0.,0.,0.,0.,1.,0.])
+            elif data_train.iloc[i,0] == 'water':
+                y_train.append([0.,0.,0.,0.,0.,1.])
+        y_train = np.array(y_train)
+        data_test = pd.read_csv('zbiory/testing_Crowdsourced.csv')
+        X_test = data_test.iloc[:,1:].to_numpy()
+        y_test = []
+        for i in range(X_test.shape[0]):
+            if data_test.iloc[i,0] == 'impervious':
+                y_test.append([1.,0.,0.,0.,0.,0.])
+            elif data_test.iloc[i,0] == 'farm':
+                y_test.append([0.,1.,0.,0.,0.,0.])
+            elif data_test.iloc[i,0] == 'forest':
+                y_test.append([0.,0.,1.,0.,0.,0.])
+            elif data_test.iloc[i,0] == 'grass':
+                y_test.append([0.,0.,0.,1.,0.,0.])
+            elif data_test.iloc[i,0] == 'orchard':
+                y_test.append([0.,0.,0.,0.,1.,0.])
+            elif data_test.iloc[i,0] == 'water':
+                y_test.append([0.,0.,0.,0.,0.,1.])
+        y_test = np.array(y_test)
     
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
+    #mlp1.fit(X_train, y_train)
     s = mlp1.fit_for_pruning(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
