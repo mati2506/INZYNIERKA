@@ -422,24 +422,40 @@ class my_MLP(object):
 
 
 if __name__ == '__main__':
-    X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
-
-    y_iris_coded=[]
-    for i in range(len(y_iris)):
-        if y_iris[i] == 'Iris-setosa':
-            y_iris_coded.append([1.,0.,0.])
-        elif y_iris[i] == 'Iris-versicolor':
-            y_iris_coded.append([0.,1.,0.])
-        else:
-            y_iris_coded.append([0.,0.,1.])
-
-    y_iris_coded = np.array(y_iris_coded)
-
-    X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
-    
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+    which_data = 1 #wybór zbioru do wczytania
 
+    if which_data == 0:
+        name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+        X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
+
+        y_iris_coded=[]
+        for i in range(len(y_iris)):
+            if y_iris[i] == 'Iris-setosa':
+                y_iris_coded.append([1.,0.,0.])
+            elif y_iris[i] == 'Iris-versicolor':
+                y_iris_coded.append([0.,1.,0.])
+            else:
+                y_iris_coded.append([0.,0.,1.])
+
+        y_iris_coded = np.array(y_iris_coded)
+
+        X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=13)
+
+    elif which_data == 1:
+        name = "first-order" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+
+        data_train = pd.read_csv('zbiory/train_first-order.csv',header=None)
+        train = data_train.to_numpy()
+        X_train = train[:,0:51]
+        y_train = train[:,51:]
+        y_train[y_train==(-1)] = 0
+        data_test = pd.read_csv('zbiory/test_first-order.csv',header=None)
+        test = data_test.to_numpy()
+        X_test = test[:,0:51]
+        y_test = test[:,51:]
+        y_test[y_test==(-1)] = 0
+    
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
     s = mlp1.fit_for_pruning(X_train, y_train)
@@ -529,7 +545,7 @@ if __name__ == '__main__':
     plt.xlabel("Procent usuniętych połączeń")
     plt.ylabel("Dokładność klasyfikacji zbioru testowego")
     pos = ax.get_position()
-    ax.set_position([pos.x0, pos.y0 + pos.height * 0.25, pos.width, pos.height * 0.75])
+    ax.set_position([pos.x0, pos.y0 + pos.height*0.25, pos.width, pos.height*0.75])
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True)
     plt.savefig("wyniki/"+name+"_dokładności.png")
 
