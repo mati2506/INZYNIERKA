@@ -422,9 +422,11 @@ class my_MLP(object):
 
 
 if __name__ == '__main__':
+    #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 3 #wybór zbioru do wczytania
+    which_data = 0 #wybór zbioru do wczytania
 
+    #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
         name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
         X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
@@ -461,6 +463,8 @@ if __name__ == '__main__':
 
         data = pd.read_excel('zbiory/Dry_Bean_Dataset.xlsx')
         X_bean = data.iloc[:,0:16].to_numpy()
+        X_bean[:,0] = X_bean[:,0]/10000
+        X_bean[:,6] = X_bean[:,6]/10000
         y_bean = []
         for i in range(X_bean.shape[0]):
             if data.iloc[i,16] == 'SEKER':
@@ -486,6 +490,7 @@ if __name__ == '__main__':
 
         data_train = pd.read_csv('zbiory/training_Crowdsourced.csv')
         X_train = data_train.iloc[:,1:].to_numpy()
+        X_train = X_train/1000
         y_train = []
         for i in range(X_train.shape[0]):
             if data_train.iloc[i,0] == 'impervious':
@@ -503,6 +508,7 @@ if __name__ == '__main__':
         y_train = np.array(y_train)
         data_test = pd.read_csv('zbiory/testing_Crowdsourced.csv')
         X_test = data_test.iloc[:,1:].to_numpy()
+        X_test = X_test/1000
         y_test = []
         for i in range(X_test.shape[0]):
             if data_test.iloc[i,0] == 'impervious':
@@ -518,11 +524,35 @@ if __name__ == '__main__':
             elif data_test.iloc[i,0] == 'water':
                 y_test.append([0.,0.,0.,0.,0.,1.])
         y_test = np.array(y_test)
+
+    elif which_data == 4:
+        name = "Wilt" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+
+        data_train = pd.read_csv('zbiory/training_Wilt.csv')
+        X_train = data_train.iloc[:,1:].to_numpy()
+        y_train = []
+        for i in range(X_train.shape[0]):
+            if data_train.iloc[i,0] == 'w':
+                y_train.append([1.,0.])
+            elif data_train.iloc[i,0] == 'n':
+                y_train.append([0.,1.])
+        y_train = np.array(y_train)
+        data_test = pd.read_csv('zbiory/testing_Wilt.csv')
+        X_test = data_test.iloc[:,1:].to_numpy()
+        y_test = []
+        for i in range(X_test.shape[0]):
+            if data_test.iloc[i,0] == 'w':
+                y_test.append([1.,0.])
+            elif data_test.iloc[i,0] == 'n':
+                y_test.append([0.,1.])
+        y_test = np.array(y_test)
     
+
+    #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
-    #mlp1.fit(X_train, y_train)
-    s = mlp1.fit_for_pruning(X_train, y_train)
+    mlp1.fit(X_train, y_train)
+    #s = mlp1.fit_for_pruning(X_train, y_train)
     
     _, y_pred = mlp1.predict(X_test)
 
@@ -530,6 +560,7 @@ if __name__ == '__main__':
     print("Dokładność klasyfikacji zbioru testowego: " + str(accuracy_test) + "%")
     print()
 
+    #PRZYCINANIE SIECI I TESTOWANIE
     accuracies = []
     times = []
     #if True: #jeżeli ma być bez pętli
