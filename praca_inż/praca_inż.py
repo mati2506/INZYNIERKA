@@ -571,6 +571,8 @@ if __name__ == '__main__':
     times = []
     #if True: #jeżeli ma być bez pętli
     for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+        print("Aktualna alpha: " + str(alpha))
+
         mlp1_cop = mlp1.copy()
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
@@ -665,4 +667,5 @@ if __name__ == '__main__':
     plt.savefig("wyniki/"+name+"_czasy.png")
 
     #generowanie kodów LaTeX dla tabel
-    #...
+    accuracies_data.to_latex("wyniki/"+name+"_dokładności_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|c|")
+    times_data.to_latex("wyniki/"+name+"_czasy_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|")
