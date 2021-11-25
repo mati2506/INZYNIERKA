@@ -210,6 +210,9 @@ class my_MLP(object):
         return new_instance
 
     def simple_pruning(self, factor): #factor - procentowa liczba połączeń do usunięcia
+        if factor <= 0 or factor > 100:
+            return 0
+
         connect_count = self.feature_count*self.hidden[0]
         for i in range(0,self.hidden_count-1,1):
             connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
@@ -254,6 +257,9 @@ class my_MLP(object):
         return np.array(outs)
 
     def simple_pruning_amendment(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
+        if factor <= 0 or factor > 100:
+            return 0
+
         connect_count = self.feature_count*self.hidden[0]
         for i in range(0,self.hidden_count-1,1):
             connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
@@ -305,6 +311,9 @@ class my_MLP(object):
         return numbers_for_pruning
 
     def pruning_by_variance(self, factor, X): #factor - procentowa liczba połączeń do usunięcia, X - zbiór trenujący
+        if factor <= 0 or factor > 100:
+            return 0
+
         connect_count = self.feature_count*self.hidden[0]
         for i in range(0,self.hidden_count-1,1):
             connect_count = connect_count + self.hidden[i]*self.hidden[i+1]
@@ -364,7 +373,8 @@ class my_MLP(object):
         return numbers_for_pruning
 
     def fit_pruning(self, s_in, factor, X):
-        s = copy.deepcopy(s_in)
+        if factor <= 0 or factor > 100:
+            return 0
 
         connect_count = self.feature_count*self.hidden[0]
         for i in range(0,self.hidden_count-1,1):
@@ -372,6 +382,7 @@ class my_MLP(object):
         connect_count = connect_count + self.hidden[self.hidden_count-1]*self.class_count
         numbers_for_pruning = int(np.floor(connect_count*factor/100))
         
+        s = copy.deepcopy(s_in)
         merged_weight = copy.deepcopy(self.weight_hidden)
         merged_weight.append(self.weight_out.copy())
         merged_bias = copy.deepcopy(self.bias_hidden)
