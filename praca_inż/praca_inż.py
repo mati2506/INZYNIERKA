@@ -534,6 +534,7 @@ if __name__ == '__main__':
 
         data_train = pd.read_csv('zbiory/training_Wilt.csv')
         X_train = data_train.iloc[:,1:].to_numpy()
+        X_train = X_train/100
         y_train = []
         for i in range(X_train.shape[0]):
             if data_train.iloc[i,0] == 'w':
@@ -543,6 +544,7 @@ if __name__ == '__main__':
         y_train = np.array(y_train)
         data_test = pd.read_csv('zbiory/testing_Wilt.csv')
         X_test = data_test.iloc[:,1:].to_numpy()
+        X_test = X_test/100
         y_test = []
         for i in range(X_test.shape[0]):
             if data_test.iloc[i,0] == 'w':
