@@ -4,7 +4,6 @@ import pandas as pd
 import copy
 import time
 import matplotlib.pyplot as plt
-from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
@@ -435,20 +434,19 @@ if __name__ == '__main__':
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
         name = "test" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
-        X_iris, y_iris = fetch_openml(name="iris", version=1, return_X_y=True)
-
-        y_iris_coded=[]
-        for i in range(len(y_iris)):
-            if y_iris[i] == 'Iris-setosa':
-                y_iris_coded.append([1.,0.,0.])
-            elif y_iris[i] == 'Iris-versicolor':
-                y_iris_coded.append([0.,1.,0.])
+        data = pd.read_csv('zbiory/iris.data')
+        X_iris = data.iloc[:,0:4].to_numpy()
+        y_iris=[]
+        for i in range(len(X_iris)):
+            if data.iloc[i,4] == 'Iris-setosa':
+                y_iris.append([1.,0.,0.])
+            elif data.iloc[i,4] == 'Iris-versicolor':
+                y_iris.append([0.,1.,0.])
             else:
-                y_iris_coded.append([0.,0.,1.])
+                y_iris.append([0.,0.,1.])
+        y_iris = np.array(y_iris)
 
-        y_iris_coded = np.array(y_iris_coded)
-
-        X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris_coded, random_state=2)
+        X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris, random_state=2)
 
     elif which_data == 1:
         name = "first-order" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
@@ -489,7 +487,7 @@ if __name__ == '__main__':
                 y_bean.append([0.,0.,0.,0.,0.,0.,1.])
         y_bean = np.array(y_bean)
 
-        X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2)
+        X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2, test_size=0.4)
 
     elif which_data == 3:
         name = "Crowdsourced_Mapping" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
@@ -556,10 +554,13 @@ if __name__ == '__main__':
 
     #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
-    mlp1 = my_MLP(hidden=(15,10,5), epochs=300)
+    mlp1 = my_MLP(hidden=(15,11,7), epochs=300)
+    print("Uczenie...")
     #mlp1.fit(X_train, y_train)
     s = mlp1.fit_for_pruning(X_train, y_train)
-    
+    print("Uczenie zakończone")
+    print()
+
     _, y_pred = mlp1.predict(X_test)
 
     accuracy_test = mlp1.accuracy(y_test, y_pred)
@@ -567,6 +568,7 @@ if __name__ == '__main__':
     print()
 
     #PRZYCINANIE SIECI I TESTOWANIE
+    print("Przycinanie...")
     accuracies = []
     times = []
     #if True: #jeżeli ma być bez pętli
@@ -625,6 +627,8 @@ if __name__ == '__main__':
         times.append([alpha, (end1-start1), (end2-start2), (end3-start3), (end4-start4)])
 
 
+    print()
+    print("Generowanie plików wynikowych...")
     accuracies = np.round(np.array(accuracies), 4)
     times = np.round(np.array(times), 4)
 
@@ -647,11 +651,12 @@ if __name__ == '__main__':
     plt.title("Dokładności klasyfikacji dla zbioru " + name)
     plt.xlabel("Procent usuniętych połączeń")
     plt.ylabel("Dokładność klasyfikacji zbioru testowego")
+    plt.xlim(0, 100)
     pos = ax.get_position()
     ax.set_position([pos.x0, pos.y0 + pos.height*0.25, pos.width, pos.height*0.75])
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True)
     plt.savefig("wyniki/"+name+"_dokładności.png")
-
+    
     fig = plt.figure()
     ax = plt.subplot(111)
     ax.plot(times[:,0],times[:,1],label="Metoda intuicyjna")
@@ -661,6 +666,7 @@ if __name__ == '__main__':
     plt.title("Czasy trwania przycinania dla zbioru " + name)
     plt.xlabel("Procent usuniętych połączeń")
     plt.ylabel("Czas przycinania [s]")
+    plt.xlim(0, 100)
     pos = ax.get_position()
     ax.set_position([pos.x0, pos.y0 + pos.height * 0.25, pos.width, pos.height * 0.75])
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True)
