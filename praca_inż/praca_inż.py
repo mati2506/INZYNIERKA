@@ -429,7 +429,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 4 #wybór zbioru do wczytania
+    which_data = 5 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -529,7 +529,7 @@ if __name__ == '__main__':
                 y_test.append([0.,0.,0.,0.,0.,1.])
         y_test = np.array(y_test)
 
-    elif which_data == 4:
+    elif which_data == 4: #zbiór chyba do niczego
         name = "Wilt" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data_train = pd.read_csv('zbiory/training_Wilt.csv')
@@ -552,7 +552,22 @@ if __name__ == '__main__':
             elif data_test.iloc[i,0] == 'n':
                 y_test.append([0.,1.])
         y_test = np.array(y_test)
-    
+
+    elif which_data == 5:
+        name = "Electrical_grid" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
+
+        data = pd.read_csv('zbiory/Electrical_Grid_Stability.csv')
+        X_grid = data.iloc[:,0:13].to_numpy()
+        y_grid = []
+        for i in range(X_grid.shape[0]):
+            if data.iloc[i,13] == 'stable':
+                y_grid.append([1.,0.])
+            else:
+                y_grid.append([0.,1.])
+        y_grid = np.array(y_grid)
+        
+        X_train, X_test, y_train, y_test = train_test_split(X_grid, y_grid, random_state=2, test_size=0.4)
+  
 
     #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
