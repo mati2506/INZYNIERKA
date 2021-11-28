@@ -429,7 +429,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 0 #wybór zbioru do wczytania
+    which_data = 4 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -558,9 +558,12 @@ if __name__ == '__main__':
     #mlp1 = my_MLP(hidden=(50),mono=True)
     mlp1 = my_MLP(hidden=(15,11,7), epochs=300)
     print("Uczenie...")
+    start = time.process_time()
     #mlp1.fit(X_train, y_train)
     s = mlp1.fit_for_pruning(X_train, y_train)
+    stop = time.process_time()
     print("Uczenie zakończone")
+    print("Czas trwania uczenia: " + str(stop-start) + "s")
     print()
 
     _, y_pred = mlp1.predict(X_test)
