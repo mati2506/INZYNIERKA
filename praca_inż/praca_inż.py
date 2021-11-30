@@ -429,7 +429,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 5 #wybór zbioru do wczytania
+    which_data = 2 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -448,7 +448,7 @@ if __name__ == '__main__':
 
         X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris, random_state=2)
 
-    elif which_data == 1:
+    elif which_data == 1: #ok. 5-7h dokładość test ok. 49,6% (stałe - dany podział train i test)
         name = "first-order" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data_train = pd.read_csv('zbiory/train_first-order.csv',header=None)
@@ -462,13 +462,17 @@ if __name__ == '__main__':
         y_test = test[:,51:]
         y_test[y_test==(-1)] = 0
 
-    elif which_data == 2:
+    elif which_data == 2: #ok. 14-16h dokładność test: ok. 90% (losowe - train i test dzielone w kodzie)
         name = "Dry_Bean" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data = pd.read_excel('zbiory/Dry_Bean_Dataset.xlsx')
         X_bean = data.iloc[:,0:16].to_numpy()
-        X_bean[:,0] = X_bean[:,0]/1000
-        X_bean[:,6] = X_bean[:,6]/1000
+        X_bean[:,0] = X_bean[:,0]/10000
+        X_bean[:,1] = X_bean[:,1]/100
+        X_bean[:,2] = X_bean[:,2]/100
+        X_bean[:,3] = X_bean[:,3]/100
+        X_bean[:,6] = X_bean[:,6]/10000
+        X_bean[:,7] = X_bean[:,7]/100
         y_bean = []
         for i in range(X_bean.shape[0]):
             if data.iloc[i,16] == 'SEKER':
@@ -489,7 +493,7 @@ if __name__ == '__main__':
 
         X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2, test_size=0.4)
 
-    elif which_data == 3:
+    elif which_data == 3: #ok. 19-21h dokładność test: ok. 49.33% (stałe - dany podział train i test)
         name = "Crowdsourced_Mapping" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data_train = pd.read_csv('zbiory/training_Crowdsourced.csv')
@@ -553,7 +557,7 @@ if __name__ == '__main__':
                 y_test.append([0.,1.])
         y_test = np.array(y_test)
 
-    elif which_data == 5:
+    elif which_data == 5: #ok. 8-10h dokładność test: ok. 90% (losowe - train i test dzielone w kodzie)
         name = "Electrical_grid" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data = pd.read_csv('zbiory/Electrical_Grid_Stability.csv')
