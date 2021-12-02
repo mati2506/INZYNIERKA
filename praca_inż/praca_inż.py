@@ -658,7 +658,7 @@ if __name__ == '__main__':
 
         accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3, accuracy_test_cop4])
         times.append([alpha, (end1-start1), (end2-start2), (end3-start3), (end4-start4)])
-        predict_times.append([alpha, (end11-start1), (end21-start21), (end31-start31), (end41-start41)])
+        predict_times.append([alpha, (end11-start11), (end21-start21), (end31-start31), (end41-start41)])
 
 
     print()
