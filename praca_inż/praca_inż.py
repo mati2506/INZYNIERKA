@@ -17,7 +17,7 @@ class my_MLP(object):
             self.hidden = tmp.copy()
         else:
             self.hidden_count = len(hidden) #Liczba powłok ukrytych
-        self.epochs = epochs    #Liczba epok
+        self.epochs = epochs    #Maksymalna liczba epok w czasie uczenia
         self.eta = eta          #Współczynnik uczenia
         self.shuffle = shuffle  #Czy mieszać próbki w epokach
         self.one = mono         #czy tylko 1 warstwa ukryta
