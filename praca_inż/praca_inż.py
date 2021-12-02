@@ -95,6 +95,9 @@ class my_MLP(object):
                     self.weight_hidden[j] = self.weight_hidden[j] - self.eta*grad_weight_hidden[self.hidden_count-1-j]
                     self.bias_hidden[j] = self.bias_hidden[j] - self.eta*grad_bias_hidden[self.hidden_count-1-j]
 
+            if self.accuracy(y, self.predict(X)[1]) == 100:
+                break
+
     
     def fit_for_pruning(self, X, y): #uczenie + wyliczanie zmiennej decyzyjnej przycinania metodą Karnin'a
         self.samples_count = X.shape[0] #liczba próbek uczących
@@ -179,6 +182,9 @@ class my_MLP(object):
 
             for ii in range(self.hidden_count+1):
                 s[ii] = s[ii] + s_change[ii]
+
+            if self.accuracy(y, self.predict(X)[1]) == 100:
+                break
 
         return s
 
