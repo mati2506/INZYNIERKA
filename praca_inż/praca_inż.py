@@ -429,7 +429,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 2 #wybór zbioru do wczytania
+    which_data = 0 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -595,6 +595,7 @@ if __name__ == '__main__':
     print("Przycinanie...")
     accuracies = []
     times = []
+    predict_times = []
     #if True: #jeżeli ma być bez pętli
     for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         print("Aktualna alpha: " + str(alpha))
@@ -603,28 +604,36 @@ if __name__ == '__main__':
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
         end1 = time.process_time()
+        start11 = time.process_time()
         _, y_pred_cop = mlp1_cop.predict(X_test)
+        end11 = time.process_time()
         accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
 
         mlp1_cop2 = mlp1.copy()
         start2 = time.process_time()
         pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
         end2 = time.process_time()
+        start21 = time.process_time()
         _, y_pred_cop2 = mlp1_cop2.predict(X_test)
+        end21 = time.process_time()
         accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)       
 
         mlp1_cop3 = mlp1.copy()
         start3 = time.process_time()
         pruning_count3 = mlp1_cop3.pruning_by_variance(alpha, X_train)
-        end3 = time.process_time()        
+        end3 = time.process_time() 
+        start31 = time.process_time()
         _, y_pred_cop3 = mlp1_cop3.predict(X_test)
+        end31 = time.process_time()
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
 
         mlp1_cop4 = mlp1.copy()
         start4 = time.process_time()
         pruning_count4 = mlp1_cop4.fit_pruning(s, alpha, X_train)
-        end4 = time.process_time()        
+        end4 = time.process_time()    
+        start41 = time.process_time()
         _, y_pred_cop4 = mlp1_cop4.predict(X_test)
+        end41 = time.process_time()
         accuracy_test_cop4 = mlp1_cop4.accuracy(y_test, y_pred_cop4)
 
 
@@ -649,12 +658,14 @@ if __name__ == '__main__':
 
         accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3, accuracy_test_cop4])
         times.append([alpha, (end1-start1), (end2-start2), (end3-start3), (end4-start4)])
+        predict_times.append([alpha, (end11-start1), (end21-start21), (end31-start31), (end41-start41)])
 
 
     print()
     print("Generowanie plików wynikowych...")
     accuracies = np.round(np.array(accuracies), 4)
     times = np.round(np.array(times), 4)
+    predict_times = np.round(np.array(predict_times), 4)
 
     #generowanie csv
     accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda intuicyjna",
@@ -662,8 +673,11 @@ if __name__ == '__main__':
                                                         "Metoda Karnin'a"])
     times_data = pd.DataFrame(times, columns=["Alpha", "Metoda intuicyjna", "Ulepszona metoda intuicyjna",
                                                         "Metoda najmniejszych wariancji", "Metoda Karnin'a"])
+    predict_times_data = pd.DataFrame(predict_times, columns=["Alpha", "Metoda intuicyjna", "Ulepszona metoda intuicyjna",
+                                                              "Metoda najmniejszych wariancji", "Metoda Karnin'a"])
     accuracies_data.to_csv(("wyniki/"+name+"_dokładności.csv"), index=False)
     times_data.to_csv(("wyniki/"+name+"_czasy.csv"), index=False)
+    predict_times_data.to_csv(("wyniki/"+name+"_czasy_klasyfikacji.csv"), index=False)
 
     #generowanie wykresów
     fig = plt.figure()
@@ -696,6 +710,22 @@ if __name__ == '__main__':
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True)
     plt.savefig("wyniki/"+name+"_czasy.png")
 
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    ax.plot(predict_times[:,0],predict_times[:,1],label="Metoda intuicyjna")
+    ax.plot(predict_times[:,0],predict_times[:,2],label="Ulepszona metoda intuicyjna")
+    ax.plot(predict_times[:,0],predict_times[:,3],label="Metoda najmniejszych wariancji")
+    ax.plot(predict_times[:,0],predict_times[:,4],label="Metoda Karnin'a")
+    plt.title("Czasy trwania klasyfikacji dla zbioru " + name)
+    plt.xlabel("Procent usuniętych połączeń")
+    plt.ylabel("Czas klasyfikacji [s]")
+    plt.xlim(0, 100)
+    pos = ax.get_position()
+    ax.set_position([pos.x0, pos.y0 + pos.height * 0.25, pos.width, pos.height * 0.75])
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True)
+    plt.savefig("wyniki/"+name+"_czasy_klasyfikacji.png")
+
     #generowanie kodów LaTeX dla tabel
     accuracies_data.to_latex("wyniki/"+name+"_dokładności_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|c|")
     times_data.to_latex("wyniki/"+name+"_czasy_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|")
+    predict_times_data.to_latex("wyniki/"+name+"_czasy_klasyfikacji_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|")
