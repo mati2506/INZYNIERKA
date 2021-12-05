@@ -673,7 +673,7 @@ if __name__ == '__main__':
     times = np.round(np.array(times), 4)
     predict_times = np.round(np.array(predict_times), 4)
 
-    #generowanie csv
+    #generowanie csv 
     accuracies_data = pd.DataFrame(accuracies, columns=["Alpha", "Liczba usuniętych połączeń", "Metoda intuicyjna",
                                                         "Ulepszona metoda intuicyjna", "Metoda najmniejszych wariancji",
                                                         "Metoda Karnin'a"])
