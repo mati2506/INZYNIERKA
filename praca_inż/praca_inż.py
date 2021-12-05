@@ -567,7 +567,7 @@ if __name__ == '__main__':
         name = "Electrical_grid" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data = pd.read_csv('zbiory/Electrical_Grid_Stability.csv')
-        X_grid = data.iloc[:,0:13].to_numpy()
+        X_grid = data.iloc[:,0:12].to_numpy() #kolumna [12] służy do regresji
         y_grid = []
         for i in range(X_grid.shape[0]):
             if data.iloc[i,13] == 'stable':
