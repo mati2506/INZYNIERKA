@@ -580,24 +580,24 @@ if __name__ == '__main__':
   
 
     #WYBÓR ARCHITEKTURY SIECI
-    arch = [(10,8,6),(12,9,6),(15,11,7),(17,12,7),(20,14,8)]
-    arch_tx = ["(10,8,6)","(12,9,6)","(15,11,7)","(17,12,7)","(20,14,8)"]
+    #arch = [(10,8,6),(12,9,6),(15,11,7),(17,12,7),(20,14,8)]
+    #arch_tx = ["(10,8,6)","(12,9,6)","(15,11,7)","(17,12,7)","(20,14,8)"]
 
-    pred_tmp = []
-    for i in range(len(arch)):
-        tmp_mlp = my_MLP(hidden=arch[i], epochs=300)
-        tmp_mlp.fit(X_train, y_train)
-        _, y_pred_tmp = tmp_mlp.predict(X_test)
-        tmp_acc_test = tmp_mlp.accuracy(y_test, y_pred_tmp)
-        pred_tmp.append(tmp_acc_test)
-        print("Dokładność klasyfikacji " + arch_tx[i] + ": " + str(tmp_acc_test))
-    pred_tmp_data = pd.DataFrame(np.round(np.array(pred_tmp), 4), index=arch_tx, columns=[name])
-    pred_tmp_data.to_csv(("wyniki/"+name+"_dokładności_architektury.csv"))
+    #pred_tmp = []
+    #for i in range(len(arch)):
+    #    tmp_mlp = my_MLP(hidden=arch[i], epochs=300)
+    #    tmp_mlp.fit(X_train, y_train)
+    #    _, y_pred_tmp = tmp_mlp.predict(X_test)
+    #    tmp_acc_test = tmp_mlp.accuracy(y_test, y_pred_tmp)
+    #    pred_tmp.append(tmp_acc_test)
+    #    print("Dokładność klasyfikacji " + arch_tx[i] + ": " + str(tmp_acc_test))
+    #pred_tmp_data = pd.DataFrame(np.round(np.array(pred_tmp), 4), index=arch_tx, columns=[name])
+    #pred_tmp_data.to_csv(("wyniki/"+name+"_dokładności_architektury.csv"))
 
 
     #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
-    mlp1 = my_MLP(hidden=(15,11,7), epochs=300)
+    mlp1 = my_MLP(hidden=(17,12,7), epochs=300)
     print("Uczenie...")
     start = time.process_time()
     #mlp1.fit(X_train, y_train)
