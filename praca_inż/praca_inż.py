@@ -435,7 +435,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 3 #wybór zbioru do wczytania
+    which_data = 0 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -454,7 +454,7 @@ if __name__ == '__main__':
 
         X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris, random_state=2)
 
-    elif which_data == 1: #ok. 5-7h dokładość test ok. 49,6% (stałe - dany podział train i test)
+    elif which_data == 1: #ok. 7-8h (uczenie 5 min) dokładość test ok. 49,74% (stałe - dany podział train i test)
         name = "first-order" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data_train = pd.read_csv('zbiory/train_first-order.csv',header=None)
@@ -468,7 +468,7 @@ if __name__ == '__main__':
         y_test = test[:,51:]
         y_test[y_test==(-1)] = 0
 
-    elif which_data == 2: #ok. 14-16h dokładność test: ok. 90% (losowe - train i test dzielone w kodzie)
+    elif which_data == 2: #ok. 15-17h (uczenie 13 min) dokładność test: ok. 91% (losowe - train i test dzielone w kodzie)
         name = "Dry_Bean" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data = pd.read_excel('zbiory/Dry_Bean_Dataset.xlsx')
@@ -499,7 +499,7 @@ if __name__ == '__main__':
 
         X_train, X_test, y_train, y_test = train_test_split(X_bean, y_bean, random_state=2, test_size=0.4)
 
-    elif which_data == 3: #ok. 19-21h dokładność test: ok. 49.33% (stałe - dany podział train i test)
+    elif which_data == 3: #ok. 21-23h (uczenie 17 min) dokładność test: ok. 52% (stałe - dany podział train i test)
         name = "Crowdsourced_Mapping" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data_train = pd.read_csv('zbiory/training_Crowdsourced.csv')
@@ -563,7 +563,7 @@ if __name__ == '__main__':
                 y_test.append([0.,1.])
         y_test = np.array(y_test)
 
-    elif which_data == 5: #ok. 8-10h dokładność test: ok. 90% (losowe - train i test dzielone w kodzie)
+    elif which_data == 5: #ok. 10-12h (uczenie 10 min) dokładność test: ok. 87% (losowe - train i test dzielone w kodzie)
         name = "Electrical_grid" #prefix nazwy pliku/wykresu do którego będą zapisywane dane
 
         data = pd.read_csv('zbiory/Electrical_Grid_Stability.csv')
@@ -618,8 +618,8 @@ if __name__ == '__main__':
     accuracies = []
     times = []
     predict_times = []
-    #if True: #jeżeli ma być bez pętli
-    for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    if True: #jeżeli ma być bez pętli
+    #for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         print("Aktualna alpha: " + str(alpha))
 
         mlp1_cop = mlp1.copy()
@@ -661,18 +661,22 @@ if __name__ == '__main__':
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą intuicyjną (najmniejszych wag): " + str(accuracy_test_cop) + "%")
         #print("Czas trwania przycinania metodą intuicyjną (najmniejszych wag): " + str(end1-start1) + "s")
+        #print("Czas trwania klasyfikacji: " + str(end11-start11) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu ulepszoną metodą intuicyjną (najmniejszych wag z poprawką): " + str(accuracy_test_cop2) + "%")
         #print("Czas trwania przycinania ulepszoną metodą intuicyjną (najmniejszych wag z poprawką): " + str(end2-start2) + "s")
+        #print("Czas trwania klasyfikacji: " + str(end21-start21) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
         #print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
+        #print("Czas trwania klasyfikacji: " + str(end31-start31) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą Karnin'a (najmniejszej zmienności wag): " + str(accuracy_test_cop4) + "%")
         #print("Czas trwania przycinania metodą Karnin'a (najmniejszej zmienności wag): " + str(end4-start4) + "s")
+        #print("Czas trwania klasyfikacji: " + str(end41-start41) + "s")
         #print()
 
         #print("Liczba połączeń, które były usuwane: " + str(pruning_count))
