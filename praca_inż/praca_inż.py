@@ -618,8 +618,8 @@ if __name__ == '__main__':
     accuracies = []
     times = []
     predict_times = []
-    if True: #jeżeli ma być bez pętli
-    #for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
+    #if True: #jeżeli ma być bez pętli
+    for alpha in range(0,101,1): #pętla po % liczby połączeń do usunięcia przy przycinaniu
         print("Aktualna alpha: " + str(alpha))
 
         mlp1_cop = mlp1.copy()
