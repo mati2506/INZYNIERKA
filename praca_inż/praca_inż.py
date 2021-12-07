@@ -435,7 +435,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 2 #wybór zbioru do wczytania
+    which_data = 3 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
