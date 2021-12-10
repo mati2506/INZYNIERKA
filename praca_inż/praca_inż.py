@@ -435,7 +435,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 0 #wybór zbioru do wczytania
+    which_data = 2 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -597,7 +597,7 @@ if __name__ == '__main__':
 
     #INICJALIZACJA, UCZENIE I TESTOWANIE SIECI
     #mlp1 = my_MLP(hidden=(50),mono=True)
-    mlp1 = my_MLP(hidden=(17,12,7), epochs=300)
+    mlp1 = my_MLP(hidden=(17,12,7), epochs=500)
     print("Uczenie...")
     start = time.process_time()
     #mlp1.fit(X_train, y_train)
@@ -755,3 +755,5 @@ if __name__ == '__main__':
     accuracies_data.to_latex("wyniki/"+name+"_dokładności_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|c|")
     times_data.to_latex("wyniki/"+name+"_czasy_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|")
     predict_times_data.to_latex("wyniki/"+name+"_czasy_klasyfikacji_latex.txt", index=False, bold_rows=True, column_format="|c|c|c|c|c|")
+
+    plt.show()
