@@ -435,7 +435,7 @@ class my_MLP(object):
 if __name__ == '__main__':
     #USTAWIENIA TESTÓW (+ ZMIANY KOMENTARZY W SEKCJI UCZENIA ORAZ SEKCJI PRZYCINANIA)
     alpha = 40 #% liczby połączeń do usunięcia przy przycinaniu (w wersji bez pętli)
-    which_data = 5 #wybór zbioru do wczytania
+    which_data = 1 #wybór zbioru do wczytania
 
     #WCZYTANIE WYBRANYCH DANYCH DO TESTOWANIA
     if which_data == 0:
@@ -626,57 +626,69 @@ if __name__ == '__main__':
         start1 = time.process_time()
         pruning_count = mlp1_cop.simple_pruning(alpha)
         end1 = time.process_time()
-        start11 = time.process_time()
-        _, y_pred_cop = mlp1_cop.predict(X_test)
-        end11 = time.process_time()
+        t1 = []
+        for i in range(10):
+            start11 = time.process_time()
+            _, y_pred_cop = mlp1_cop.predict(X_test)
+            end11 = time.process_time()
+            t1.append(end11-start11)
         accuracy_test_cop = mlp1_cop.accuracy(y_test, y_pred_cop)
 
         mlp1_cop2 = mlp1.copy()
         start2 = time.process_time()
         pruning_count2 = mlp1_cop2.simple_pruning_amendment(alpha, X_train)
         end2 = time.process_time()
-        start21 = time.process_time()
-        _, y_pred_cop2 = mlp1_cop2.predict(X_test)
-        end21 = time.process_time()
+        t2 = []
+        for i in range(10):
+            start21 = time.process_time()
+            _, y_pred_cop2 = mlp1_cop2.predict(X_test)
+            end21 = time.process_time()
+            t2.append(end21-start21)
         accuracy_test_cop2 = mlp1_cop2.accuracy(y_test, y_pred_cop2)       
 
         mlp1_cop3 = mlp1.copy()
         start3 = time.process_time()
         pruning_count3 = mlp1_cop3.pruning_by_variance(alpha, X_train)
-        end3 = time.process_time() 
-        start31 = time.process_time()
-        _, y_pred_cop3 = mlp1_cop3.predict(X_test)
-        end31 = time.process_time()
+        end3 = time.process_time()
+        t3 = []
+        for i in range(10):
+            start31 = time.process_time()
+            _, y_pred_cop3 = mlp1_cop3.predict(X_test)
+            end31 = time.process_time()
+            t3.append(end31-start31)
         accuracy_test_cop3 = mlp1_cop3.accuracy(y_test, y_pred_cop3)
 
         mlp1_cop4 = mlp1.copy()
         start4 = time.process_time()
         pruning_count4 = mlp1_cop4.fit_pruning(s, alpha, X_train)
-        end4 = time.process_time()    
-        start41 = time.process_time()
-        _, y_pred_cop4 = mlp1_cop4.predict(X_test)
-        end41 = time.process_time()
+        end4 = time.process_time() 
+        t4 =[]
+        for i in range(10):
+            start41 = time.process_time()
+            _, y_pred_cop4 = mlp1_cop4.predict(X_test)
+            end41 = time.process_time()
+            t4.append(end41-start41)
         accuracy_test_cop4 = mlp1_cop4.accuracy(y_test, y_pred_cop4)
 
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą intuicyjną (najmniejszych wag): " + str(accuracy_test_cop) + "%")
         #print("Czas trwania przycinania metodą intuicyjną (najmniejszych wag): " + str(end1-start1) + "s")
-        #print("Czas trwania klasyfikacji: " + str(end11-start11) + "s")
+        #print("Czas trwania klasyfikacji: " + str(np.mean(np.array(t1))) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu ulepszoną metodą intuicyjną (najmniejszych wag z poprawką): " + str(accuracy_test_cop2) + "%")
         #print("Czas trwania przycinania ulepszoną metodą intuicyjną (najmniejszych wag z poprawką): " + str(end2-start2) + "s")
-        #print("Czas trwania klasyfikacji: " + str(end21-start21) + "s")
+        #print("Czas trwania klasyfikacji: " + str(np.mean(np.array(t2))) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą najmniejszych wariancji: " + str(accuracy_test_cop3) + "%")
         #print("Czas trwania przycinania metodą najmniejszych wariancji: " + str(end3-start3) + "s")
-        #print("Czas trwania klasyfikacji: " + str(end31-start31) + "s")
+        #print("Czas trwania klasyfikacji: " + str(np.mean(np.array(t3))) + "s")
         #print()
 
         #print("Dokładność klasyfikacji zbioru testowego po przycinaniu metodą Karnin'a (najmniejszej zmienności wag): " + str(accuracy_test_cop4) + "%")
         #print("Czas trwania przycinania metodą Karnin'a (najmniejszej zmienności wag): " + str(end4-start4) + "s")
-        #print("Czas trwania klasyfikacji: " + str(end41-start41) + "s")
+        #print("Czas trwania klasyfikacji: " + str(np.mean(np.array(t4))) + "s")
         #print()
 
         #print("Liczba połączeń, które były usuwane: " + str(pruning_count))
@@ -684,7 +696,7 @@ if __name__ == '__main__':
 
         accuracies.append([alpha, pruning_count, accuracy_test_cop, accuracy_test_cop2, accuracy_test_cop3, accuracy_test_cop4])
         times.append([alpha, (end1-start1), (end2-start2), (end3-start3), (end4-start4)])
-        predict_times.append([alpha, (end11-start11), (end21-start21), (end31-start31), (end41-start41)])
+        predict_times.append([alpha, np.mean(np.array(t1)), np.mean(np.array(t2)), np.mean(np.array(t3)), np.mean(np.array(t4))])
 
 
     print()
