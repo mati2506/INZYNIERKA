@@ -377,7 +377,7 @@ class my_MLP(object):
 
         return numbers_for_pruning
 
-    def fit_pruning(self, s_in, factor, X):
+    def karnin_pruning(self, s_in, factor, X):
         if factor <= 0 or factor > 100:
             return 0
 
@@ -660,7 +660,7 @@ if __name__ == '__main__':
 
         mlp1_cop4 = mlp1.copy()
         start4 = time.process_time()
-        pruning_count4 = mlp1_cop4.fit_pruning(s, alpha, X_train)
+        pruning_count4 = mlp1_cop4.karnin_pruning(s, alpha, X_train)
         end4 = time.process_time() 
         t4 =[]
         for i in range(10):
